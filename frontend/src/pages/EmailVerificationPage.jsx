@@ -297,10 +297,6 @@ const EmailVerificationPage = () => {
               )}
             </div>
 
-            <div className="pt-2">
-              <GoogleCalender booking={booking} />
-            </div>
-
             <button
               onClick={() => navigate('/')}
               className="mt-4 px-8 py-3 rounded-full bg-white/10 text-white font-semibold hover:bg-white hover:text-black transition-colors"

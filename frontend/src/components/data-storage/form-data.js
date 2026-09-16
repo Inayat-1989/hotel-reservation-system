@@ -60,4 +60,33 @@ export const removeReservation = (bookingId) => {
   }
 }
 
+// form-data.js
+export const updateReservation = (reservationData) => {
+  // 1. Don't save empty/invalid forms
+  if (!reservationData.id) return;
+
+  const existingIndex = formList.findIndex(item => item.id === reservationData.id);
+
+  if (existingIndex !== -1) {
+    // Update existing entry in-place
+    formList[existingIndex] = { ...formList[existingIndex], ...reservationData };
+  } else {
+    // Check if a record with identical details already exists to prevent duplicate placeholders
+    const duplicateIndex = formList.findIndex(item => 
+      item.locationId === reservationData.locationId &&
+      item.date === reservationData.date &&
+      item.timeValue === reservationData.timeValue &&
+      (item.customerName === 'N/A' || !item.customerName)
+    );
+
+    if (duplicateIndex !== -1) {
+      // Overwrite the 'N/A' placeholder instead of creating a second entry
+      formList[duplicateIndex] = { ...formList[duplicateIndex], ...reservationData };
+    } else {
+      // Push new valid reservation
+      formList.push(reservationData);
+    }
+  }
+};
+
 export { getAvailableSeats }

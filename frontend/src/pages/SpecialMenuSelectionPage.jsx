@@ -128,7 +128,7 @@ const SpecialMenuSelectionPage = () => {
           </div>
         )}
 
-\        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-left text-xs text-gray-300">
             <p className="font-semibold text-white text-sm">
               Reservation: <span className="text-[#c93400]">{bookingDetails.date}</span> at <span className="text-[#c93400]">{bookingDetails.time}</span> ({bookingDetails.guests} guests)
@@ -153,7 +153,6 @@ const SpecialMenuSelectionPage = () => {
             </button>
           </div>
         </div>
-
       </div>
 
       <div className="mt-8">

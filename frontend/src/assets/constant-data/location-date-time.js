@@ -24,7 +24,7 @@ export const locationList = [
     address: '45 Marina Boulevard, Dock 3',
     phone: '+1 (555) 019-5582',
     status: 'Open Now',
-    totalSeats: 60,
+    totalSeats: 10,
     schedule: [
       { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], open: '12:00', close: '23:00', label: '12:00 PM – 11:00 PM' },
       { days: ['Saturday', 'Sunday'], open: '10:00', close: '23:30', label: '10:00 AM – 11:30 PM' },

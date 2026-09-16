@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import NextPageButton from '../components/common/NextPageButton.jsx'
 import { locationList } from '../assets/constant-data/location-date-time.js'
 import { formList, addPendingReservation } from '../components/data-storage/form-data.js'
+import HeroHeading from '../components/common/HeroHeading.jsx'
 
 const BookTablePage = () => {
   const navigate = useNavigate()
@@ -14,21 +15,34 @@ const BookTablePage = () => {
       (loc) => loc.id === (locationState.locationId || locationState.location)
     ) || locationList[0]
 
-  // Form State initialized with fallbacks
   const [formData, setFormData] = useState({
     location: selectedLocationObj.id,
     locationName: selectedLocationObj.name || locationState.locationName || 'Downtown',
     date: locationState.date || today,
     time: locationState.timeValue || locationState.time || '18:00',
     timeLabel: locationState.timeLabel || locationState.time || '6:00 PM',
-    guests: '2',
+    guests: String(locationState.guests || '2'),
     fullName: '',
     email: '',
     phone: '',
     specialRequests: ''
   })
 
-  // UI States
+  // Sync state if navigation target/state updates
+  useEffect(() => {
+    if (locationState.locationId || locationState.location) {
+      setFormData((prev) => ({
+        ...prev,
+        location: selectedLocationObj.id,
+        locationName: selectedLocationObj.name || locationState.locationName || 'Downtown',
+        date: locationState.date || today,
+        time: locationState.timeValue || locationState.time || '18:00',
+        timeLabel: locationState.timeLabel || locationState.time || '6:00 PM',
+        guests: String(locationState.guests || '2')
+      }))
+    }
+  }, [locationState, selectedLocationObj, today])
+
   const [errorMessage, setErrorMessage] = useState('')
   const [showWarningModal, setShowWarningModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
@@ -63,7 +77,8 @@ const BookTablePage = () => {
   }
 
   const check24HourGap = () => {
-    const bookingDateTime = new Date(`${formData.date}T${formData.time}:00`)
+    const formattedTime = formData.time.length === 5 ? formData.time : formData.time.padStart(5, '0')
+    const bookingDateTime = new Date(`${formData.date}T${formattedTime}:00`)
     const now = new Date()
     const diffInHours = (bookingDateTime - now) / (1000 * 60 * 60)
     return diffInHours >= 24
@@ -182,12 +197,7 @@ const BookTablePage = () => {
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-8 animate-fade-in relative">
       <div className="w-full max-w-4xl bg-black/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl text-white">
-        <h1 className="text-3xl md:text-5xl font-bold text-center text-[#c93400] mb-3">
-          Book a Table
-        </h1>
-        <p className="text-gray-300 text-center text-sm md:text-base max-w-lg mx-auto mb-8">
-          Complete your contact details to reserve your dining experience.
-        </p>
+        <HeroHeading heading='Book a Table' paragraph='Complete your contact details to reserve your dining experience.' />
 
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           {errorMessage && (
@@ -196,6 +206,7 @@ const BookTablePage = () => {
             </div>
           )}
 
+          {/* Selected Reservation Details Section */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 mb-6">
             <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
               <h3 className="text-sm font-semibold text-[#c93400] uppercase tracking-wider">
@@ -206,11 +217,11 @@ const BookTablePage = () => {
                 onClick={() => navigate(-1)}
                 className="text-xs text-gray-400 hover:text-white underline transition-colors"
               >
-                Change Date/Time
+                Change Details
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
               <div>
                 <span className="block text-xs text-gray-400 font-medium">Location</span>
                 <span className="text-base font-semibold text-white">
@@ -227,28 +238,16 @@ const BookTablePage = () => {
                   {formData.timeLabel}
                 </span>
               </div>
+              <div>
+                <span className="block text-xs text-gray-400 font-medium">Guests</span>
+                <span className="text-base font-semibold text-white">
+                  {formData.guests} {parseInt(formData.guests, 10) === 1 ? 'Guest' : 'Guests'}
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="space-y-6">
-            <div className="flex flex-col text-left max-w-xs">
-              <label className="text-xs text-gray-300 mb-2 font-medium">
-                Number of Guests (Max 12)
-              </label>
-              <select
-                name="guests"
-                value={formData.guests}
-                onChange={handleChange}
-                className="bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c93400] transition-colors"
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
-                  <option key={num} value={num} className="bg-neutral-900 text-white">
-                    {num} {num === 1 ? 'Guest' : 'Guests'}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             <div className="border-t border-white/10 pt-6 space-y-4 text-left">
               <h3 className="text-base font-semibold text-[#c93400]">Contact Details</h3>
 
@@ -326,11 +325,11 @@ const BookTablePage = () => {
                 onClick={() => navigate(-1)}
                 className="flex-1 py-2.5 rounded-xl border border-white/20 text-white text-xs font-semibold hover:bg-white/10 transition-colors"
               >
-                Adjust Date & Time
+                Adjust Details
               </button>
               <button
                 onClick={handleConfirmWithoutSpecials}
-                className="flex-1 py-2.5 rounded-xl bg-[#c93400] text-white text-xs font-bold hover:bg-white hover:text-[#c93400] transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-[#c93400] text-[#ffffff] text-xs font-bold hover:bg-white hover:text-[#c93400] transition-colors"
               >
                 Proceed Seat Only
               </button>
@@ -371,9 +370,8 @@ const BookTablePage = () => {
         </div>
       )}
 
-      <div className="mt-8">
-        <NextPageButton to="/my-reservation" name="Reservations" />
-      </div>
+      <NextPageButton to="/my-reservation" name="Reservations" />
+
     </div>
   )
 }

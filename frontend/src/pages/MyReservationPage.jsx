@@ -1,36 +1,20 @@
-import React, { useState, useMemo, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import NextPageButton from '../components/common/NextPageButton.jsx'
 import { locationList } from '../assets/constant-data/location-date-time.js'
 import { formList, removeReservation } from '../components/data-storage/form-data.js'
 
 const MyReservationsPage = () => {
+  const navigate = useNavigate()
   const [reservations, setReservations] = useState([...formList])
   const [activeTab, setActiveTab] = useState('upcoming')
-
-  // Modals state
   const [cancelModalId, setCancelModalId] = useState(null)
-  const [editingReservation, setEditingReservation] = useState(null)
-  const [editError, setEditError] = useState('')
 
   const now = new Date()
-  const todayStr = now.toISOString().split('T')[0]
-  const currentMinutesNow = now.getHours() * 60 + now.getMinutes()
-
-  // Calculate minimum date for Special Menu (+24 hours/Tomorrow)
-  const tomorrowStr = useMemo(() => {
-    const tomorrow = new Date(now)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    return tomorrow.toISOString().split('T')[0]
-  }, [now])
 
   const getLocationName = (id) => {
     const loc = locationList.find((l) => l.id === id || l.name === id)
     return loc ? loc.name : id
-  }
-
-  const getLocationDetails = (locId) => {
-    return locationList.find((l) => l.id === locId || l.name === locId) || locationList[0]
   }
 
   const isBookingUpcoming = (resDate, resTime) => {
@@ -55,56 +39,6 @@ const MyReservationsPage = () => {
 
   const currentList = activeTab === 'upcoming' ? upcomingList : pastList
 
-  // Compute available time slots based on location schedule and chosen date
-  const availableTimeSlots = useMemo(() => {
-    if (!editingReservation) return []
-
-    const selectedLoc = getLocationDetails(editingReservation.location)
-    if (!selectedLoc || !editingReservation.date) return []
-
-    const dateObj = new Date(`${editingReservation.date}T00:00:00`)
-    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' })
-    const daySchedule = selectedLoc.schedule?.find((s) => s.days.includes(dayName))
-
-    if (!daySchedule || !daySchedule.open || !daySchedule.close) return []
-
-    const [openH, openM] = daySchedule.open.split(':').map(Number)
-    const [closeH, closeM] = daySchedule.close.split(':').map(Number)
-
-    const startMinutes = openH * 60 + openM
-    const endMinutes = closeH * 60 + closeM
-    const slots = []
-    const isToday = editingReservation.date === todayStr
-
-    for (let time = startMinutes; time < endMinutes; time += 30) {
-      if (isToday && time <= currentMinutesNow) continue
-
-      const hours = Math.floor(time / 60)
-      const mins = time % 60
-      const valueStr = `${hours < 10 ? '0' : ''}${hours}:${mins < 10 ? '0' : ''}${mins}`
-
-      const period = hours >= 12 ? 'PM' : 'AM'
-      const hours12 = hours % 12 === 0 ? 12 : hours % 12
-      const minStr = mins < 10 ? `0${mins}` : mins
-      const labelStr = `${hours12}:${minStr} ${period}`
-
-      slots.push({ value: valueStr, label: labelStr })
-    }
-
-    return slots
-  }, [editingReservation, todayStr, currentMinutesNow])
-
-  // Sync selected time when location or date changes in modal
-  useEffect(() => {
-    if (editingReservation && availableTimeSlots.length > 0) {
-      const exists = availableTimeSlots.some((s) => s.value === editingReservation.time)
-      if (!exists) {
-        setEditingReservation((prev) => ({ ...prev, time: availableTimeSlots[0].value }))
-      }
-    }
-  }, [availableTimeSlots])
-
-  // Confirm cancel reservation
   const confirmCancelReservation = () => {
     if (cancelModalId) {
       removeReservation(cancelModalId)
@@ -113,62 +47,11 @@ const MyReservationsPage = () => {
     }
   }
 
-  // Open Edit Modal with pre-populated data
+  // Navigate to /location-date-time and pass the reservation details in state
   const handleOpenEdit = (res) => {
-    const hasSpecial = Boolean(res.hasSpecialMenu || res.specialItems?.length || res.specialMenu)
-    const minSelectableDate = hasSpecial ? tomorrowStr : todayStr
-    const validDate = res.date < minSelectableDate ? minSelectableDate : res.date
-
-    setEditingReservation({
-      id: res.id,
-      name: res.name || '',
-      email: res.email || '',
-      location: res.location || locationList[0]?.id,
-      date: validDate,
-      time: res.time || '',
-      guests: res.guests || 1,
-      specialRequests: res.specialRequests || '',
-      hasSpecialMenu: hasSpecial,
-      specialItems: res.specialItems || [],
-      specialMenuDiscount: res.specialMenuDiscount || 0,
-      totalAmount: res.totalAmount || 0,
+    navigate('/location-date-time', {
+      state: { editReservation: res }
     })
-    setEditError('')
-  }
-
-  const handleSaveEdit = (e) => {
-    e.preventDefault()
-    setEditError('')
-
-    const selectedDateTime = new Date(`${editingReservation.date}T${editingReservation.time || '00:00'}`)
-    const hoursDifference = (selectedDateTime.getTime() - now.getTime()) / (1000 * 60 * 60)
-
-    if (selectedDateTime < now) {
-      setEditError('You cannot select a date or time in the past.')
-      return
-    }
-
-    if (editingReservation.hasSpecialMenu && hoursDifference < 24) {
-      setEditError('Reservations with special menus cannot be scheduled less than 24 hours in advance.')
-      return
-    }
-
-    if (availableTimeSlots.length === 0) {
-      setEditError('The selected location is closed on this date.')
-      return
-    }
-
-    // Update internal state and storage
-    setReservations((prev) =>
-      prev.map((res) => (res.id === editingReservation.id ? editingReservation : res))
-    )
-
-    const targetIdx = formList.findIndex((item) => item.id === editingReservation.id)
-    if (targetIdx !== -1) {
-      formList[targetIdx] = { ...editingReservation }
-    }
-
-    setEditingReservation(null)
   }
 
   return (
@@ -181,7 +64,7 @@ const MyReservationsPage = () => {
           Manage and view all your active dining bookings and previous visit history.
         </p>
 
-        {/* Filter Tabs */}
+        {/* Tab Controls */}
         <div className="flex justify-center mb-8">
           <div className="bg-white/5 border border-white/10 p-1.5 rounded-full flex gap-2">
             <button
@@ -213,7 +96,7 @@ const MyReservationsPage = () => {
             <h3 className="text-lg font-semibold text-gray-200">No {activeTab} reservations found</h3>
             <p className="text-xs text-gray-400 max-w-xs mx-auto">
               {activeTab === 'upcoming'
-                ? "You don't have any upcoming tables reserved right now."
+                ? "You don't have any active table bookings right now."
                 : 'You have no past reservation history.'}
             </p>
             {activeTab === 'upcoming' && (
@@ -298,14 +181,14 @@ const MyReservationsPage = () => {
         <NextPageButton to="/menu" name="Back to Menu" />
       </div>
 
-      {/* Cancel Modal */}
+      {/* Cancel Confirmation Modal */}
       {cancelModalId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl text-center space-y-6 animate-scale-up">
+          <div className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl text-center space-y-6">
             <div className="text-4xl">⚠️</div>
             <h3 className="text-xl font-bold text-white">Cancel Reservation?</h3>
             <p className="text-xs text-gray-300">
-              Are you sure you want to cancel this booking? This action cannot be undone.
+              Are you sure you want to cancel this booking? This step cannot be undone.
             </p>
             <div className="flex gap-3 justify-center">
               <button
@@ -321,166 +204,6 @@ const MyReservationsPage = () => {
                 Yes, Cancel
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Modal */}
-      {editingReservation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl max-w-lg w-full shadow-2xl text-left space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-white/10 pb-3">
-              <h3 className="text-xl font-bold text-[#c93400]">Modify Reservation</h3>
-              <button
-                onClick={() => setEditingReservation(null)}
-                className="text-gray-400 hover:text-white text-lg font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            {editError && (
-              <div className="bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs p-3 rounded-xl">
-                ⚠️ {editError}
-              </div>
-            )}
-
-            <form onSubmit={handleSaveEdit} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-gray-300 mb-1 font-semibold">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={editingReservation.name}
-                  onChange={(e) =>
-                    setEditingReservation({ ...editingReservation, name: e.target.value })
-                  }
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#c93400]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-300 mb-1 font-semibold">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={editingReservation.email}
-                  onChange={(e) =>
-                    setEditingReservation({ ...editingReservation, email: e.target.value })
-                  }
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#c93400]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-300 mb-1 font-semibold">Location</label>
-                <select
-                  value={editingReservation.location}
-                  onChange={(e) =>
-                    setEditingReservation({ ...editingReservation, location: e.target.value })
-                  }
-                  className="w-full bg-[#1c1c1c] border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#c93400]"
-                >
-                  {locationList.map((loc) => (
-                    <option key={loc.id} value={loc.id}>
-                      {loc.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-gray-300 mb-1 font-semibold">Date</label>
-                  <input
-                    type="date"
-                    required
-                    min={editingReservation.hasSpecialMenu ? tomorrowStr : todayStr}
-                    value={editingReservation.date}
-                    onChange={(e) =>
-                      setEditingReservation({ ...editingReservation, date: e.target.value })
-                    }
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#c93400]"
-                  />
-                  {editingReservation.hasSpecialMenu && (
-                    <span className="text-[10px] text-amber-400 mt-1 block">
-                      Special menu requires 24h advance notice (today disabled).
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-1 font-semibold">Time Slot</label>
-                  <select
-                    value={editingReservation.time}
-                    onChange={(e) =>
-                      setEditingReservation({ ...editingReservation, time: e.target.value })
-                    }
-                    disabled={availableTimeSlots.length === 0}
-                    className="w-full bg-[#1c1c1c] border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#c93400]"
-                  >
-                    {availableTimeSlots.length === 0 ? (
-                      <option value="">Closed on selected date</option>
-                    ) : (
-                      availableTimeSlots.map((slot) => (
-                        <option key={slot.value} value={slot.value}>
-                          {slot.label}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-gray-300 mb-1 font-semibold font-sans">Number of Guests</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="20"
-                  required
-                  value={editingReservation.guests}
-                  onChange={(e) =>
-                    setEditingReservation({
-                      ...editingReservation,
-                      guests: parseInt(e.target.value, 10) || 1,
-                    })
-                  }
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#c93400]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-300 mb-1 font-semibold">Special Requests</label>
-                <textarea
-                  rows="2"
-                  value={editingReservation.specialRequests}
-                  onChange={(e) =>
-                    setEditingReservation({
-                      ...editingReservation,
-                      specialRequests: e.target.value,
-                    })
-                  }
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#c93400]"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setEditingReservation(null)}
-                  className="px-5 py-2.5 rounded-full bg-white/10 text-white font-semibold hover:bg-white/20 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-full bg-[#c93400] text-white font-bold hover:bg-red-700 transition-all shadow-lg"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
