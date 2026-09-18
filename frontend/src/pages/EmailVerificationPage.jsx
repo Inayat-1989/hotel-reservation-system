@@ -18,7 +18,6 @@ const EmailVerificationPage = () => {
   const bookingDetails = findForm(targetId)
   const [isVerified, setIsVerified] = useState(false)
 
-  // Custom Hooks
   const { timeLeft, clearHold } = useReservationHold(targetId, isVerified)
 
   const handleVerifySuccess = () => {
