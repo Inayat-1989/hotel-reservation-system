@@ -1,70 +1,25 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { locationList } from '../constant-data/location-date-time.js'
-import { formList, updateReservation, addPendingReservation } from '../../components/data-storage/form-data.js'
-import {
-  getTodayStr,
-  getCurrentMinutes,
-  getLocationStatus,
-  getNextAvailableDate,
-  calculateAvailableTimeSlots,
-  isLessThan24HoursAway
-} from '../utils/locationDateTimeUtils.js'
+import { updateReservation } from '../../components/data-storage/form-data.js'
+import { useGuestDateTime } from './useGuestDateTime.js'
+import { getTodayStr, isLessThan24HoursAway } from '../utils/locationDateTimeUtils.js'
 
-export const useLocationDateTime = (reservationId) => {
+export const useLocationDateTime = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const existingReservation = useMemo(() => {
-    if (location.state?.editReservation) return location.state.editReservation
-    if (reservationId) return formList.find(item => item.id === reservationId) || null
-    return null
-  }, [location.state, reservationId])
+  const isEditMode = Boolean(location.state?.id)
+  const [selectedLocationId, setSelectedLocationId] = useState(locationList[0].id)
 
-  const todayStr = useMemo(() => getTodayStr(), [])
-  const currentMinutesNow = useMemo(() => getCurrentMinutes(), [])
+  const { dateTimeState, dateTimeActions } = useGuestDateTime()
 
-  const [selectedLocationId, setSelectedLocationId] = useState(
-    existingReservation?.locationId || existingReservation?.location || locationList[0]?.id || ''
-  )
-  const [selectedDate, setSelectedDate] = useState(existingReservation?.date || todayStr)
-  const [selectedTime, setSelectedTime] = useState(
-    existingReservation?.timeValue || existingReservation?.timeSlot || existingReservation?.time || ''
-  )
-  const [partySize, setPartySize] = useState(
-    Number(existingReservation?.partySize || existingReservation?.guests || 2)
-  )
+  const { selectedDate, selectedTime, guests, isCalendarOpen, showClosedModal, availableSlots } = dateTimeState
+  const { setSelectedDate, setSelectedTime, setGuests, setIsCalendarOpen, setShowClosedModal } = dateTimeActions
 
-  const [showClosedModal, setShowClosedModal] = useState(false)
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
-
-  const activeLocation = useMemo(() => {
-    return locationList.find(loc => loc.id === selectedLocationId) || locationList[0]
-  }, [selectedLocationId])
-
-  const availableTimeSlots = useMemo(() => {
-    return calculateAvailableTimeSlots({
-      activeLocation,
-      selectedDate,
-      todayStr,
-      currentMinutesNow,
-      partySize,
-      existingReservation
-    })
-  }, [activeLocation, selectedDate, todayStr, currentMinutesNow, partySize, existingReservation])
-
-  useEffect(() => {
-    const isCurrentTimeValid = availableTimeSlots.some(s => s.value === selectedTime && s.isAvailable)
-    if (!isCurrentTimeValid) {
-      const validSlot = availableTimeSlots.find(s => s.isAvailable)
-      setSelectedTime(validSlot ? validSlot.value : '')
-    }
-  }, [availableTimeSlots, selectedTime])
-
-  const handleLocationSelect = (loc) => {
-    setSelectedLocationId(loc.id)
-    const locTodayStatus = getLocationStatus(loc, todayStr)
-    setSelectedDate(!locTodayStatus.isOpen ? getNextAvailableDate(loc, todayStr) : todayStr)
+  const handleLocationSelect = (locId) => {
+    setSelectedLocationId(locId)
+    setSelectedDate(locId, getTodayStr())
   }
 
   const handleProceed = (e) => {
@@ -73,69 +28,60 @@ export const useLocationDateTime = (reservationId) => {
       e.stopPropagation()
     }
 
-    const selectedSlot = availableTimeSlots.find(slot => slot.value === selectedTime)
-    
-    if (!selectedTime || !selectedSlot?.isAvailable) {
+    if (!selectedTime) {
       setShowClosedModal(true)
       return
     }
 
+    const selectedSlot = availableSlots?.find((slot) => slot.value24 === selectedTime)
     const isUrgentBooking = isLessThan24HoursAway(selectedDate, selectedTime)
-    const targetId = existingReservation?.id
+
+    if (isUrgentBooking === null) {
+      navigate('/menu', { state: {} })
+      return
+    }
+
+    const targetId = isEditMode ? location.state.id : `RES-${Date.now().toString().slice(-6)}`
 
     const bookingDetails = {
-      ...(existingReservation || {}),
-      id: targetId || `RES-${Date.now().toString().slice(-6)}`,
-      locationId: activeLocation.id,
-      locationName: activeLocation.name,
-      location: activeLocation.id,
-      totalSeats: activeLocation.totalSeats,
-      address: activeLocation.address,
-      phone: activeLocation.phone,
+      id: targetId,
+      status: 'upcoming',
+      locationId: selectedLocationId,
+      locationName: selectedLocationId,
       date: selectedDate,
-      timeValue: selectedTime,
-      timeSlot: selectedTime,
       time: selectedTime,
-      timeLabel: selectedSlot.displayTime,
-      partySize,
-      guests: partySize,
-      remainingSeats: selectedSlot.seatsRemaining,
-      hasSpecialMenu: isUrgentBooking ? false : (existingReservation?.hasSpecialMenu || false),
-      specialItems: isUrgentBooking ? [] : (existingReservation?.specialItems || [])
+      timeLabel: selectedSlot?.display12 || selectedTime,
+      guests: guests,
+      hasSpecialMenu: !isUrgentBooking,
+      specialItems: isUrgentBooking ? [] : (location.state?.specialItems || []),
     }
 
-    const alreadyExists = formList.some(item => item.id === targetId)
-
-    if (targetId && alreadyExists) {
-      updateReservation(targetId, bookingDetails)
-    } else {
-      addPendingReservation(bookingDetails)
+    if (isEditMode) {
+      updateReservation(bookingDetails)
     }
 
-    sessionStorage.setItem('pendingReservation', JSON.stringify(bookingDetails))
-    navigate('/book-table', { state: bookingDetails })
+    navigate('/book-table', { state: { bookingDetails } })
   }
 
   return {
     state: {
       selectedLocationId,
+      isEditMode,
       selectedDate,
       selectedTime,
-      partySize,
-      showClosedModal,
+      guests,  
       isCalendarOpen,
-      activeLocation,
-      availableTimeSlots,
-      existingReservation
+      showClosedModal,
+      availableSlots,
     },
     actions: {
+      setLocationId: handleLocationSelect,
+      handleProceed,
       setSelectedDate,
-      setSelectedTime: (e) => setSelectedTime(e.target.value),
-      setPartySize: (e) => setPartySize(parseInt(e.target.value, 10)),
-      setShowClosedModal,
+      setSelectedTime,
+      setGuests,
       setIsCalendarOpen,
-      handleLocationSelect,
-      handleProceed
-    }
+      setShowClosedModal
+    },
   }
 }

@@ -1,6 +1,6 @@
 import LocationCard from './LocationCard.jsx'
 
-const LocationDateTimeSelect = ({selectedLocationId, locationList, handleLocationSelect}) => {
+const LocationDateTimeSelect = ({selectedLocationId, locationList, setLocationId}) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 text-left">
         {locationList.map((locationDetails) => {
@@ -9,7 +9,7 @@ const LocationDateTimeSelect = ({selectedLocationId, locationList, handleLocatio
             return (
               <div 
                 key={locationDetails.id}
-                onClick={() => handleLocationSelect(locationDetails)}
+                onClick={() => setLocationId(locationDetails.id)}
                 className={`cursor-pointer p-6 rounded-2xl border transition-all duration-300 flex flex-col justify-between ${
                   isSelected 
                     ? 'bg-white/15 border-[#c93400] shadow-lg shadow-[#c93400]/20 scale-[1.02]' 

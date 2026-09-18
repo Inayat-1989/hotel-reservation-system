@@ -2,7 +2,7 @@ const InsufficientSeats = ({
   isOpen,
   onClose,
   locationName,
-  partySize,
+  guests,
   selectedDate,
   onSelectNextDate
 }) => {
@@ -17,7 +17,6 @@ const InsufficientSeats = ({
         className="w-full max-w-md bg-[#171717] border border-[#c93400]/40 rounded-3xl p-6 md:p-8 shadow-2xl text-center text-white relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Optional Close Button */}
         <button
           type="button"
           onClick={onClose}
@@ -37,7 +36,7 @@ const InsufficientSeats = ({
         <p className="text-sm text-[#999999] mb-6 leading-relaxed">
           <span className="font-semibold text-[#c93400]">{locationName}</span> does not have enough seats available for{' '}
           <span className="font-semibold text-white">
-            {partySize} {partySize === 1 ? 'guest' : 'guests'}
+            {guests} {guests === 1 ? 'guest' : 'guests'}
           </span>{' '}
           on <span className="underline decoration-[#c93400]">{selectedDate}</span> at this time slot.
         </p>

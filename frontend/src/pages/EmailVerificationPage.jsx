@@ -6,7 +6,7 @@ import ReservationSuccessCard from '../components/common/emailVerificationCompon
 import { useReservationHold } from '../assets/hooks/useReservationHold.js'
 import { useOtpInput } from '../assets/hooks/useOtpInput.js'
 import { formatTimer, clearHoldSession } from '../assets/utils/timerUtils.js'
-import { confirmReservation, removeReservation } from '../components/data-storage/form-data.js'
+import { confirmReservation, updateReservation, removeReservation } from '../components/data-storage/form-data.js'
 
 const EmailVerificationPage = () => {
   const navigate = useNavigate()
@@ -35,9 +35,23 @@ const EmailVerificationPage = () => {
   } = useOtpInput({
     isExpired: timeLeft <= 0,
     onVerifySuccess: () => {
-      const confirmedData = confirmReservation(booking)
-      setBooking(confirmedData || { ...booking, bookingStatus: 'Confirmed' })
+      let finalBooking
+      
+      if (booking?.isEditing || booking?.id) {
+        finalBooking = { 
+          ...booking, 
+          bookingStatus: 'Confirmed', 
+          isEditing: false 
+        }
+        updateReservation(finalBooking)
+      } else {
+        finalBooking = confirmReservation(booking)
+      }
+
+      setBooking(finalBooking || { ...booking, bookingStatus: 'Confirmed' })
       clearHoldSession()
+      sessionStorage.removeItem('pendingReservation')
+      sessionStorage.removeItem('pendingReservationDraft')
       setIsVerified(true)
     },
   })
@@ -49,8 +63,13 @@ const EmailVerificationPage = () => {
   }, [booking, isVerified])
 
   const handleCancelHold = () => {
-    if (booking?.id) removeReservation(booking.id)
+    // Only remove from memory if it's a NEW unconfirmed hold (not an existing edit)
+    if (booking?.id && !booking?.isEditing) {
+      removeReservation(booking.id)
+    }
     clearHoldSession()
+    sessionStorage.removeItem('pendingReservation')
+    sessionStorage.removeItem('pendingReservationDraft')
     navigate('/location-date-time')
   }
 
@@ -82,10 +101,12 @@ const EmailVerificationPage = () => {
         {!isVerified ? (
           <div className="space-y-6">
             <span className="text-xs font-bold uppercase tracking-widest text-[#c93400] bg-[#c93400]/10 px-3 py-1 rounded-full border border-[#c93400]/30">
-              Step 3: Email Verification
+              {booking?.isEditing ? 'Update Reservation Verification' : 'Step 3: Email Verification'}
             </span>
 
-            <h1 className="text-3xl font-bold">Verify Your Reservation</h1>
+            <h1 className="text-3xl font-bold">
+              {booking?.isEditing ? 'Confirm Reservation Changes' : 'Verify Your Reservation'}
+            </h1>
             <p className="text-sm text-gray-300">
               We sent a verification code to <span className="text-white font-semibold">{booking.email}</span>.
             </p>
@@ -118,14 +139,14 @@ const EmailVerificationPage = () => {
                     type="submit"
                     className="w-full py-3.5 rounded-full bg-[#c93400] text-white text-base font-bold shadow-lg hover:bg-white hover:text-[#c93400] transition-all"
                   >
-                    Confirm & Finalize Reservation
+                    {booking?.isEditing ? 'Save Updated Reservation' : 'Confirm & Finalize Reservation'}
                   </button>
                   <button
                     type="button"
                     onClick={handleCancelHold}
                     className="w-full py-2.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold hover:bg-rose-600 hover:text-white transition-all"
                   >
-                    Cancel Reservation Hold
+                    Cancel Edit
                   </button>
                 </div>
               ) : (

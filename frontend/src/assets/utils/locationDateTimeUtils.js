@@ -1,134 +1,105 @@
 import { formList } from '../../components/data-storage/form-data.js'
-import { getAvailableSeats } from '../constant-data/location-date-time.js'
+import { findLocationObject, getAvailableSeats, locationList } from '../constant-data/location-date-time.js'
+
 
 export const getTodayStr = () => new Date().toISOString().split('T')[0]
 
-export const getCurrentMinutes = () => {
+export const getTimeNow = () => {
   const now = new Date()
-  return now.getHours() * 60 + now.getMinutes()
+  const [hour, min] = [now.getHours(), now.getMinutes()]
+  
+  return `${hour}:${min}`
+
 }
 
-export const getLocationStatus = (locationObj, targetDateStr, todayStr = getTodayStr()) => {
-  const [year, month, day] = targetDateStr.split('-').map(Number)
-  const dateObj = new Date(year, month - 1, day)
-  const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' })
-  const daySchedule = locationObj?.schedule?.find(s => s.days.includes(dayName))
-
-  if (!daySchedule?.open || !daySchedule?.close) {
-    return { status: 'Closed', isOpen: false }
+export const calculateAvailableTimeSlots = (locationId, selectedDate) => {
+  const location = findLocationObject(locationId)
+  if (!location) {
+    return []
   }
 
-  if (targetDateStr === todayStr) {
-    const [openH, openM] = daySchedule.open.split(':').map(Number)
-    const [closeH, closeM] = daySchedule.close.split(':').map(Number)
-    const startMinutes = openH * 60 + openM
-    const endMinutes = closeH * 60 + closeM
-    const currentMins = getCurrentMinutes()
+  const date = getTodayStr()
+  const time = getTimeNow()
 
-    const isOpenRightNow = currentMins >= startMinutes && currentMins < endMinutes
-    return { status: isOpenRightNow ? 'Open Now' : 'Closed', isOpen: isOpenRightNow }
+  if (date === selectedDate) {
+    if (location.close <= time) return []
   }
 
-  return { status: 'Open', isOpen: true }
+  return get30MinList(time, location.close)
 }
 
-export const getNextAvailableDate = (locationObj, todayStr = getTodayStr()) => {
-  const baseDate = new Date()
-  for (let i = 1; i <= 7; i++) {
-    const checkDate = new Date(baseDate)
-    checkDate.setDate(baseDate.getDate() + i)
-    const dayName = checkDate.toLocaleDateString('en-US', { weekday: 'long' })
-    const daySchedule = locationObj?.schedule?.find(s => s.days.includes(dayName))
-    if (daySchedule?.open && daySchedule?.close) {
-      return checkDate.toISOString().split('T')[0]
-    }
+export const adjustTime = (time) => {
+  const [hour, adjustedMin] = time.split(":")
+
+  if (adjustedMin >= '00' && adjustedMin < '30') {
+    return `${hour}:30`
+  } else if (adjustedMin >= '30' && adjustedMin <= '59') {
+    return `${Number(hour) + 1}:00`
+  } else {
+    return time
   }
-  return todayStr
 }
 
-export const getMinDate = (locationObj) => {
-  const todayStr = getTodayStr()
-  const todayStatus = getLocationStatus(locationObj, todayStr)
-  return todayStatus.isOpen ? todayStr : getNextAvailableDate(locationObj, todayStr)
-}
+const get30MinList = (startTime, endTime) => {
 
-export const isLessThan24HoursAway = (dateStr, timeStr) => {
-  if (!dateStr || !timeStr) return false
-  const formattedTime = timeStr.length === 5 ? timeStr : `${timeStr.padStart(5, '0')}`
-  const targetDateTime = new Date(`${dateStr}T${formattedTime}:00`)
-  const diffInMs = targetDateTime - new Date()
-  return diffInMs / (1000 * 60 * 60) < 24
-}
+  if (!startTime || !endTime) return []
 
-export const calculateAvailableTimeSlots = ({
-  activeLocation,
-  selectedDate,
-  todayStr,
-  currentMinutesNow,
-  partySize,
-  existingReservation
-}) => {
-  if (!activeLocation) return []
+  startTime = adjustTime(startTime)
 
-  const [year, month, day] = selectedDate.split('-').map(Number)
-  const dateObj = new Date(year, month - 1, day)
-  const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' })
-
-  const daySchedule = activeLocation.schedule.find(s => s.days.includes(dayName))
-  if (!daySchedule?.open || !daySchedule?.close) return []
-
-  const [openH, openM] = daySchedule.open.split(':').map(Number)
-  const [closeH, closeM] = daySchedule.close.split(':').map(Number)
-
-  const startMinutes = openH * 60 + openM
-  const endMinutes = closeH * 60 + closeM
-  const slots = []
-  const isToday = selectedDate === todayStr
-
-  for (let time = startMinutes; time < endMinutes; time += 30) {
-    if (isToday && time <= currentMinutesNow) continue
-
-    const hours = Math.floor(time / 60)
-    const mins = time % 60
-    const valueStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
-
+  const formatDisplayTime = (totalMinutes) => {
+    const hours = Math.floor(totalMinutes / 60)
+    const mins = totalMinutes % 60
     const period = hours >= 12 ? 'PM' : 'AM'
     const hours12 = hours % 12 === 0 ? 12 : hours % 12
-    const minStr = mins < 10 ? `0${mins}` : mins
-    const displayTimeStr = `${hours12}:${minStr} ${period}`
+    const pad2 = (num) => String(num).padStart(2, '0')
+    
+    return `${pad2(hours12)}:${pad2(mins)} ${period}`
+  }
 
-    let seatsRemaining = getAvailableSeats(activeLocation.id, selectedDate, valueStr)
+  const startMins = parseTimeToMinutes(startTime)
+  const endMins = parseTimeToMinutes(endTime)
+  const slots = []
 
-    const pendingFormSeats = formList
-      .filter(b => {
-        if (existingReservation && b.id === existingReservation.id) return false
-        const locId = b.locationId || b.location
-        const bTime = b.timeValue || b.timeSlot || b.time
-        return locId === activeLocation.id && b.date === selectedDate && bTime === valueStr
-      })
-      .reduce((sum, b) => sum + parseInt(b.guests || b.partySize || b.seatsBooked || 1, 10), 0)
-
-    seatsRemaining = Math.max(0, seatsRemaining - pendingFormSeats)
-    const isAvailable = seatsRemaining >= partySize
-
-    let capacityLabel = ''
-    if (seatsRemaining === 0) {
-      capacityLabel = ' (Fully Booked)'
-    } else if (!isAvailable) {
-      capacityLabel = ` (Only ${seatsRemaining} seat${seatsRemaining > 1 ? 's' : ''} left)`
-    } else {
-      capacityLabel = ` (${seatsRemaining} seats left)`
-    }
-
+  for (let time = startMins; time < endMins; time += 30) {
+    const hours = Math.floor(time / 60)
+    const mins = time % 60
+    const value24 = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
     slots.push({
-      value: valueStr,
-      displayTime: displayTimeStr,
-      label: `${displayTimeStr}${capacityLabel}`,
+      value24,
+      display12: formatDisplayTime(time),
       minutes: time,
-      seatsRemaining,
-      isAvailable
     })
   }
 
   return slots
+}
+
+const parseTimeToMinutes = (timeStr) => {
+    const [h, m] = timeStr.split(':').map(Number)
+    return h * 60 + m
+}
+
+export const isLessThan24HoursAway = (selectedDate, selectedTime) => {
+  if (!selectedDate || !selectedTime) return false;
+
+  const [year, month, day] = getTodayStr().split('-')
+  const [syear, smonth, sday] = selectedDate.split('-')
+
+  if (sday === day) {
+    return false
+  }
+
+  if (sday < day) {
+    return null
+  }
+  
+  const time = parseTimeToMinutes(getTimeNow())
+  selectedTime = parseTimeToMinutes(selectedTime)
+
+  const difference = selectedTime - time
+
+  if (difference >= 1440) {
+    return true
+  }
+  return false
 }

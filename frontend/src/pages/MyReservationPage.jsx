@@ -1,8 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import NextPageButton from '../components/common/NextPageButton.jsx'
 import ReservationCard from '../components/common/myReservationComponents/ReservationCard.jsx'
 import CancelReservation from '../components/common/myReservationComponents/CancelReservation.jsx'
 import { useReservationManager } from '../assets/hooks/useReservationManager.js'
+import HeroHeading from '../components/common/HeroHeading.jsx'
+import { formList } from '../components/data-storage/form-data.js'
 
 const MyReservationsPage = () => {
   const navigate = useNavigate()
@@ -17,21 +19,28 @@ const MyReservationsPage = () => {
     confirmCancelReservation,
   } = useReservationManager()
 
+  const location = useLocation();
+
   const handleOpenEdit = (reservation) => {
+    sessionStorage.setItem('pendingReservationDraft', JSON.stringify(reservation))
+
+    console.log("In Reservation After the email : ", formList, "\nEdit Reservation: ", reservation, "\nBookingDetails: ", location.state)
     navigate('/location-date-time', {
-      state: { editReservation: reservation },
+      state: {
+        id: reservation.id,
+        editReservation: reservation,
+        bookingDetails: reservation,
+      },
     })
   }
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-8 animate-fade-in relative">
       <div className="w-full max-w-4xl bg-black/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl text-white">
-        <h1 className="text-3xl md:text-5xl font-bold text-center text-[#c93400] mb-3">
-          My Reservations
-        </h1>
-        <p className="text-gray-300 text-center text-sm md:text-base max-w-lg mx-auto mb-8">
-          Manage and view all your active dining bookings and previous visit history.
-        </p>
+        <HeroHeading
+          heading="My Reservations"
+          paragraph="Manage and view all your active dining bookings and previous visit history."
+        />
 
         <div className="flex justify-center mb-8">
           <div className="bg-white/5 border border-white/10 p-1.5 rounded-full flex gap-2">
@@ -91,7 +100,6 @@ const MyReservationsPage = () => {
           </div>
         )}
       </div>
-
 
       <NextPageButton to="/menu" name="Back to Menu" />
 

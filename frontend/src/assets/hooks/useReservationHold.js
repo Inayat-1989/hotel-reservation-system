@@ -14,10 +14,9 @@ export const useReservationHold = (booking, isVerified) => {
     bookingRef.current = booking
   }, [isVerified, booking])
 
-  // Cleanup on tab refresh or window close
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (!isVerifiedRef.current && bookingRef.current?.id) {
+      if (!isVerifiedRef.current && bookingRef.current?.id && !bookingRef.current?.isEditing) {
         removeReservation(bookingRef.current.id)
         clearHoldSession()
       }
@@ -27,7 +26,6 @@ export const useReservationHold = (booking, isVerified) => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [])
 
-  // Active countdown interval
   useEffect(() => {
     if (isVerified) return
 
@@ -39,11 +37,13 @@ export const useReservationHold = (booking, isVerified) => {
         if (remaining <= 0) {
           clearInterval(timer)
           setTimeLeft(0)
-          if (bookingRef.current?.id) {
+          
+          if (bookingRef.current?.id && !bookingRef.current?.isEditing) {
             removeReservation(bookingRef.current.id)
           }
+
           clearHoldSession()
-          setTimerError('Hold timer expired. Your pending table reservation has been canceled.')
+          setTimerError('Hold timer expired. Your pending table reservation change was canceled.')
         } else {
           setTimeLeft(remaining)
         }

@@ -6,50 +6,50 @@ import IsCalenderOpen from '../components/common/locationDateTimePageComponents/
 import InsufficientSeats from '../components/common/locationDateTimePageComponents/InsufficientSeats.jsx'
 
 import { locationList } from '../assets/constant-data/location-date-time.js'
-import { getMinDate, getNextAvailableDate } from '../assets/utils/locationDateTimeUtils.js'
 import { useLocationDateTime } from '../assets/hooks/useLocationDateTime.js'
+import { useGuestDateTime } from '../assets/hooks/useGuestDateTime.js'
 
-const LocationDateTimePage = ({ reservationId }) => {
-  const { state, actions } = useLocationDateTime(reservationId)
+const LocationDateTimePage = () => {
+  const {state, actions} = useLocationDateTime()
+
   const {
     selectedLocationId,
+    isEditMode,
     selectedDate,
     selectedTime,
-    partySize,
-    showClosedModal,
+    guests,  
     isCalendarOpen,
-    activeLocation,
-    availableTimeSlots,
-    existingReservation
+    showClosedModal,
+    availableSlots,
   } = state
+
+  const {
+    setLocationId,
+    handleProceed,
+    setSelectedDate,
+    setSelectedTime,
+    setGuests,
+    setIsCalendarOpen,
+    setShowClosedModal,
+  } = actions
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-8 animate-fade-in relative">
       <div className="w-full max-w-5xl bg-black/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl text-white">
         <HeroHeading 
-          heading={existingReservation ? 'Edit Reservation Details' : 'Locations & Opening Hours'} 
-          paragraph={existingReservation ? 'Update your selected location, date, time slot, or guest count.' : 'Select a location and reserve your table for any available date and time slot.'} 
+          heading={isEditMode ? 'Edit Reservation Details' : 'Locations & Opening Hours'} 
+          paragraph={isEditMode ? 'Update your selected location, date, time slot, or guest count.' : 'Select a location and reserve your table for any available date and time slot.'} 
         />
 
         <LocationDateTimeSelect 
           selectedLocationId={selectedLocationId}
-          locationList={locationList} 
-          handleLocationSelect={actions.handleLocationSelect} 
+          locationList={locationList}
+          setLocationId={setLocationId} 
         />
         
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
-          <h3 className="text-lg font-semibold text-[#c93400] mb-4"> Plan Your Visit at {activeLocation.name}</h3>
-          <GuestDateTimeSelect 
-            setPartySize={actions.setPartySize} 
-            partySize={partySize} 
-            setIsCalendarOpen={actions.setIsCalendarOpen} 
-            selectedDate={selectedDate} 
-            selectedTime={selectedTime} 
-            availableTimeSlots={availableTimeSlots} 
-            setSelectedTime={actions.setSelectedTime} 
-            handleProceed={actions.handleProceed} 
-            existingReservation={existingReservation}
-          />
+          <h3 className="text-lg font-semibold text-[#c93400] mb-4"> Plan Your Visit at {selectedLocationId}</h3>
+          <GuestDateTimeSelect selectedDate={selectedDate} selectedTime={selectedTime} guests={guests} availableSlots={availableSlots} setSelectedTime={setSelectedTime} setGuests={setGuests} setIsCalendarOpen={setIsCalendarOpen} isEditMode={isEditMode} handleProceed={handleProceed} />
         </div>
       </div>
 
@@ -57,20 +57,19 @@ const LocationDateTimePage = ({ reservationId }) => {
 
       <IsCalenderOpen 
         isCalendarOpen={isCalendarOpen}
-        setIsCalendarOpen={actions.setIsCalendarOpen} 
+        setIsCalendarOpen={setIsCalendarOpen} 
         selectedDate={selectedDate}
-        setSelectedDate={actions.setSelectedDate} 
-        activeLocation={activeLocation}
-        getMinDate={getMinDate}
+        setSelectedDate={setSelectedDate} 
+        selectedLocationId={selectedLocationId}
       />
       
       <InsufficientSeats
         isOpen={showClosedModal}
-        onClose={() => actions.setShowClosedModal(false)}
-        locationName={activeLocation.name}
-        partySize={partySize}
+        onClose={() => dateTimeActions.setShowClosedModal(false)}
+        locationName={selectedLocationId}
+        guests={guests}
         selectedDate={selectedDate}
-        onSelectNextDate={() => actions.setSelectedDate(getNextAvailableDate(activeLocation))}
+        onSelectNextDate={() => setSelectedDate(selectedLocationId, selectedDate)}
       />
     </div>
   )

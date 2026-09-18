@@ -6,8 +6,7 @@ const IsCalenderOpen = ({
   setIsCalendarOpen, 
   selectedDate, 
   setSelectedDate, 
-  activeLocation, 
-  getMinDate,
+  selectedLocationId, 
 }) => {
   if (!isCalendarOpen) return null;
 
@@ -19,9 +18,7 @@ const IsCalenderOpen = ({
       <div onClick={(e) => e.stopPropagation()}>
         <ThemedCalender
           value={selectedDate}
-          onChange={(newDate) => setSelectedDate(newDate)}
-          minDate={getMinDate(activeLocation)}
-          activeLocation={activeLocation}
+          onChange={(newDate) => setSelectedDate(selectedLocationId, newDate)}
           onClose={() => setIsCalendarOpen(false)}
         />
       </div>

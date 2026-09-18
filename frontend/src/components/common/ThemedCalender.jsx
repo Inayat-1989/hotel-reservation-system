@@ -1,11 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { getTodayStr } from '../../assets/utils/locationDateTimeUtils'
 
 const ThemedCalender = ({
   value,
   onChange,
-  minDate,
-  activeLocation,
-  hasSpecialMenu = false,
   onClose
 }) => {
   const [viewDate, setViewDate] = useState(() => {
@@ -47,23 +45,12 @@ const ThemedCalender = ({
       const dayStr = String(d).padStart(2, '0')
       const formattedDate = `${year}-${monthStr}-${dayStr}`
 
-      let isDisabled = minDate ? formattedDate < minDate : false
-
-      if (activeLocation && activeLocation.schedule && !isDisabled) {
-        const [y, m, dayNum] = formattedDate.split('-').map(Number)
-        const dateObj = new Date(y, m - 1, dayNum)
-        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' })
-        const daySchedule = activeLocation.schedule.find(s => s.days.includes(dayName))
-
-        if (!daySchedule || !daySchedule.open || !daySchedule.close) {
-          isDisabled = true
-        }
-      }
+      let isDisabled = formattedDate < getTodayStr()?  true : false
 
       days.push({ day: d, dateStr: formattedDate, isDisabled })
     }
     return days
-  }, [viewDate, minDate, activeLocation])
+  }, [viewDate])
 
   return (
     <div className="w-full max-w-xs bg-[#171717] border border-white/20 rounded-3xl p-6 shadow-2xl text-white select-none relative">
@@ -77,7 +64,6 @@ const ThemedCalender = ({
         </button>
       )}
 
-      {/* Header Controls */}
       <div className={`flex justify-between items-center mb-5 ${onClose ? 'pr-6' : ''}`}>
         <button
           type="button"
@@ -98,14 +84,12 @@ const ThemedCalender = ({
         </button>
       </div>
 
-      {/* Weekday Labels */}
       <div className="grid grid-cols-7 gap-1 text-center text-xs text-[#999999] font-semibold mb-3">
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
           <div key={day}>{day}</div>
         ))}
       </div>
 
-      {/* Days Grid */}
       <div className="grid grid-cols-7 gap-1.5 text-center">
         {calendarDays.map((item, idx) => {
           if (!item) return <div key={`empty-${idx}`} />
@@ -134,12 +118,6 @@ const ThemedCalender = ({
           )
         })}
       </div>
-
-      {hasSpecialMenu && (
-        <p className="text-[11px] text-amber-400 mt-4 text-center leading-tight">
-          ⚠️ Special menu items require at least 24 hours advance notice.
-        </p>
-      )}
     </div>
   )
 }
