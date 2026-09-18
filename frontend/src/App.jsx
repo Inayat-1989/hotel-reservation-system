@@ -32,7 +32,6 @@ const App = () => {
               <Route path='/email-verification' element={<EmailVerificationPage />} />
           </Routes>
         </div>
-
       </div>
 
       <Footer />

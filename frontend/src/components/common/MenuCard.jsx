@@ -33,7 +33,6 @@ const MenuCard = ({
             : 'bg-white border-[#c93400]/20 hover:shadow-xl hover:border-[#c93400]'
         } ${(!isAvailable || disabledMessage) ? 'opacity-60' : ''}`}
       >
-        {/* Badges Overlay */}
         <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-center pointer-events-none">
           {isSpecial && (
             <span className="bg-[#c93400] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider">
@@ -78,7 +77,6 @@ const MenuCard = ({
             <p className="text-gray-700 text-sm line-clamp-3 text-left">{description}</p>
           </div>
 
-          {/* Action / Availability Message */}
           {disabledMessage ? (
             <p className="text-xs text-amber-600 font-medium mt-3 bg-amber-50 p-2 rounded-lg w-full text-center">
               {disabledMessage}
@@ -102,7 +100,6 @@ const MenuCard = ({
         </div>
       </div>
 
-      {/* Expand Modal */}
       {isModalOpen && (
         <div 
           className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
