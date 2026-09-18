@@ -1,11 +1,19 @@
 import { 
-  locationList, 
   reserveSeats, 
   releaseSeats, 
-  getAvailableSeats 
 } from "../../assets/constant-data/location-date-time.js"
 
 export const formList = []
+
+export const findFormIndex = (formId) => {
+  const formIndex = formList.findIndex((form) => form.id === formId)
+  return formIndex
+}
+
+export const findForm = (formId) => {
+  const form = formList.find((form) => form.id === formId)
+  return form
+}
 
 export const addPendingReservation = (formData) => {
   const pendingBooking = {
@@ -22,7 +30,7 @@ const getLocationDateTimeGuest = (booking) => {
 }
 
 export const confirmReservation = (bookingId) => {
-  const index = formList.findIndex((item) => item.id === bookingId)
+  const index = findFormIndex(bookingId)
   
   if (index !== -1 && formList[index].status !== 'confirmed') {
     const booking = formList[index]
@@ -40,7 +48,7 @@ export const confirmReservation = (bookingId) => {
 }
 
 export const removeReservation = (bookingId) => {
-  const index = formList.findIndex((item) => item.id === bookingId)
+  const index = findFormIndex(bookingId)
   if (index !== -1) {
     const booking = formList[index]
     
@@ -57,7 +65,7 @@ export const removeReservation = (bookingId) => {
 export const updateReservation = (reservationData) => {
   if (!reservationData.id) return
 
-  const existingIndex = formList.findIndex(item => item.id === reservationData.id)
+  const existingIndex = findFormIndex(reservationData.id)
 
   if (existingIndex !== -1) {
     formList[existingIndex] = { ...formList[existingIndex], ...reservationData }
@@ -65,5 +73,3 @@ export const updateReservation = (reservationData) => {
     return
   }
 }
-
-export { getAvailableSeats }

@@ -1,4 +1,3 @@
-import { formList } from '../../components/data-storage/form-data.js'
 import { findLocationObject, getAvailableSeats, locationList } from '../constant-data/location-date-time.js'
 
 
@@ -82,24 +81,18 @@ const parseTimeToMinutes = (timeStr) => {
 export const isLessThan24HoursAway = (selectedDate, selectedTime) => {
   if (!selectedDate || !selectedTime) return false;
 
-  const [year, month, day] = getTodayStr().split('-')
-  const [syear, smonth, sday] = selectedDate.split('-')
-
-  if (sday === day) {
-    return false
-  }
-
-  if (sday < day) {
-    return null
-  }
+  const now = new Date();
   
-  const time = parseTimeToMinutes(getTimeNow())
-  selectedTime = parseTimeToMinutes(selectedTime)
+  const minutes = now.getMinutes()
+  const roundedMinutes = minutes === 0 ? 0 : minutes <= 30 ? 30 : 60
+  now.setMinutes(roundedMinutes, 0, 0)
 
-  const difference = selectedTime - time
+  const targetDate = new Date(`${selectedDate}T${selectedTime}:00`)
 
-  if (difference >= 1440) {
-    return true
-  }
-  return false
+  if (isNaN(targetDate.getTime())) return false
+
+  const diffInMs = targetDate.getTime() - now.getTime()
+  const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+
+  return diffInMs > 0 && diffInMs < twentyFourHoursInMs
 }

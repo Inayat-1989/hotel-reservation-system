@@ -21,7 +21,6 @@ export const useGuestDateTime = () => {
         } else {
             setSelectedTime('')
         }
-        console.log(availableSlots)
     }
 
     const handleDateChange = (locationId, newDate) => {

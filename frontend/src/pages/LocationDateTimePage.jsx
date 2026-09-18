@@ -7,7 +7,6 @@ import InsufficientSeats from '../components/common/locationDateTimePageComponen
 
 import { locationList } from '../assets/constant-data/location-date-time.js'
 import { useLocationDateTime } from '../assets/hooks/useLocationDateTime.js'
-import { useGuestDateTime } from '../assets/hooks/useGuestDateTime.js'
 
 const LocationDateTimePage = () => {
   const {state, actions} = useLocationDateTime()
@@ -21,6 +20,7 @@ const LocationDateTimePage = () => {
     isCalendarOpen,
     showClosedModal,
     availableSlots,
+    errorMessage,
   } = state
 
   const {
@@ -31,6 +31,7 @@ const LocationDateTimePage = () => {
     setGuests,
     setIsCalendarOpen,
     setShowClosedModal,
+    setErrorMessage,
   } = actions
 
   return (
@@ -40,7 +41,7 @@ const LocationDateTimePage = () => {
           heading={isEditMode ? 'Edit Reservation Details' : 'Locations & Opening Hours'} 
           paragraph={isEditMode ? 'Update your selected location, date, time slot, or guest count.' : 'Select a location and reserve your table for any available date and time slot.'} 
         />
-
+        
         <LocationDateTimeSelect 
           selectedLocationId={selectedLocationId}
           locationList={locationList}
@@ -65,7 +66,7 @@ const LocationDateTimePage = () => {
       
       <InsufficientSeats
         isOpen={showClosedModal}
-        onClose={() => dateTimeActions.setShowClosedModal(false)}
+        onClose={() => setShowClosedModal(false)}
         locationName={selectedLocationId}
         guests={guests}
         selectedDate={selectedDate}

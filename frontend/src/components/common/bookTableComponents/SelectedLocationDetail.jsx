@@ -1,5 +1,8 @@
-const SelectedLocationDetail = ({ formData, onChangeDetails }) => {
-  const guestCount = parseInt(formData.guests, 10)
+import { findForm } from "../../data-storage/form-data"
+
+const SelectedLocationDetail = ({ targetId, onChangeDetails }) => {
+  const formData = findForm(targetId)
+  const guestCount = parseInt(formData?.guests, 10)
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 mb-6">
@@ -20,23 +23,23 @@ const SelectedLocationDetail = ({ formData, onChangeDetails }) => {
         <div>
           <span className="block text-xs text-gray-400 font-medium">Location</span>
           <span className="text-base font-semibold text-white">
-            {formData.locationName}
+            {formData?.locationId}
           </span>
         </div>
         <div>
           <span className="block text-xs text-gray-400 font-medium">Date</span>
-          <span className="text-base font-semibold text-white">{formData.date}</span>
+          <span className="text-base font-semibold text-white">{formData?.date}</span>
         </div>
         <div>
           <span className="block text-xs text-gray-400 font-medium">Time Slot</span>
           <span className="text-base font-semibold text-[#c93400]">
-            {formData.timeLabel}
+            {formData?.timeLabel}
           </span>
         </div>
         <div>
           <span className="block text-xs text-gray-400 font-medium">Guests</span>
           <span className="text-base font-semibold text-white">
-            {formData.guests} {guestCount === 1 ? 'Guest' : 'Guests'}
+            {formData?.guests} {guestCount === 1 ? 'Guest' : 'Guests'}
           </span>
         </div>
       </div>

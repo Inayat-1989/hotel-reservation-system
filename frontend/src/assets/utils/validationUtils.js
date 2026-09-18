@@ -1,5 +1,5 @@
-export const validateContactDetails = ({ fullName, email, phone }) => {
-  const nameTrimmed = (fullName || '').trim()
+export const validateContactDetails = ({ name, email, phone }) => {
+  const nameTrimmed = (name || '').trim()
   const emailTrimmed = (email || '').trim()
   const phoneTrimmed = (phone || '').trim()
 
