@@ -1,10 +1,10 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import React from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import NextPageButton from '../components/common/NextPageButton.jsx'
 import ReservationCard from '../components/common/myReservationComponents/ReservationCard.jsx'
 import CancelReservation from '../components/common/myReservationComponents/CancelReservation.jsx'
-import { useReservationManager } from '../assets/hooks/useReservationManager.js'
 import HeroHeading from '../components/common/HeroHeading.jsx'
-import { formList } from '../components/data-storage/form-data.js'
+import { useReservationManager } from '../assets/hooks/useReservationManager.js'
 
 const MyReservationsPage = () => {
   const navigate = useNavigate()
@@ -19,18 +19,9 @@ const MyReservationsPage = () => {
     confirmCancelReservation,
   } = useReservationManager()
 
-  const location = useLocation();
-
   const handleOpenEdit = (reservation) => {
-    sessionStorage.setItem('pendingReservationDraft', JSON.stringify(reservation))
-
-    console.log("In Reservation After the email : ", formList, "\nEdit Reservation: ", reservation, "\nBookingDetails: ", location.state)
     navigate('/location-date-time', {
-      state: {
-        id: reservation.id,
-        editReservation: reservation,
-        bookingDetails: reservation,
-      },
+      state: { targetId: reservation.id },
     })
   }
 
@@ -42,9 +33,11 @@ const MyReservationsPage = () => {
           paragraph="Manage and view all your active dining bookings and previous visit history."
         />
 
+        {/* Tab Controls */}
         <div className="flex justify-center mb-8">
           <div className="bg-white/5 border border-white/10 p-1.5 rounded-full flex gap-2">
             <button
+              type="button"
               onClick={() => setActiveTab('upcoming')}
               className={`px-6 py-2 rounded-full text-xs md:text-sm font-semibold transition-all ${
                 activeTab === 'upcoming'
@@ -55,6 +48,7 @@ const MyReservationsPage = () => {
               Upcoming ({upcomingList.length})
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('past')}
               className={`px-6 py-2 rounded-full text-xs md:text-sm font-semibold transition-all ${
                 activeTab === 'past'
@@ -67,6 +61,7 @@ const MyReservationsPage = () => {
           </div>
         </div>
 
+        {/* Content View */}
         {currentList.length === 0 ? (
           <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center space-y-4">
             <div className="text-4xl">🍽️</div>

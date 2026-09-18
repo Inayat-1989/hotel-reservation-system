@@ -9,7 +9,7 @@ export const useLocationDateTime = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const isEditMode = Boolean(location.state?.id)
+  const isEditMode = Boolean(location.state?.targetId)
   const [selectedLocationId, setSelectedLocationId] = useState(locationList[0].id)
   const [errorMessage, setErrorMessage] = useState(null)
 

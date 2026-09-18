@@ -25,11 +25,10 @@ export const useReservationManager = () => {
   const currentList = activeTab === 'upcoming' ? upcomingList : pastList
 
   const confirmCancelReservation = () => {
-    if (cancelModalId) {
-      removeReservation(cancelModalId)
-      setReservations((prev) => prev.filter((res) => res.id !== cancelModalId))
-      setCancelModalId(null)
-    }
+    if (!cancelModalId) return
+    removeReservation(cancelModalId)
+    setReservations((prev) => prev.filter((res) => res.id !== cancelModalId))
+    setCancelModalId(null)
   }
 
   return {

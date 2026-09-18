@@ -13,12 +13,14 @@ const CancelReservationModal = ({ isOpen, onClose, onConfirm }) => {
         </p>
         <div className="flex gap-3 justify-center">
           <button
+            type="button"
             onClick={onClose}
             className="px-5 py-2.5 rounded-full bg-white/10 text-white text-xs font-semibold hover:bg-white/20 transition-all"
           >
             Keep Booking
           </button>
           <button
+            type="button"
             onClick={onConfirm}
             className="px-5 py-2.5 rounded-full bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-all shadow-lg"
           >

@@ -1,3 +1,4 @@
+import React from 'react'
 import { getLocationName, isBookingUpcoming } from '../../../assets/utils/reservationUtils.js'
 
 const ReservationCard = ({ reservation, onEdit, onCancel }) => {
@@ -47,12 +48,14 @@ const ReservationCard = ({ reservation, onEdit, onCancel }) => {
       {isUpcoming && (
         <div className="w-full md:w-auto flex md:flex-col justify-end gap-2 border-t md:border-t-0 border-white/10 pt-3 md:pt-0">
           <button
+            type="button"
             onClick={() => onEdit(reservation)}
             className="px-4 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-semibold hover:bg-amber-500 hover:text-white transition-colors"
           >
             Change Details
           </button>
           <button
+            type="button"
             onClick={() => onCancel(reservation.id)}
             className="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-semibold hover:bg-rose-500 hover:text-white transition-colors"
           >
