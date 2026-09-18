@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
 
-export const useOtpInput = ({ isExpired, onVerifySuccess }) => {
+const HARDCODED_OTP = '123456'
+
+export const useOtpInput = ({ timeLeft, onVerifySuccess }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [otpError, setOtpError] = useState('')
   const [showResendToast, setShowResendToast] = useState(false)
@@ -23,7 +25,6 @@ export const useOtpInput = ({ isExpired, onVerifySuccess }) => {
       return
     }
 
-    // Handle single digit input
     const newOtp = [...otp]
     newOtp[index] = val
     setOtp(newOtp)
@@ -35,13 +36,12 @@ export const useOtpInput = ({ isExpired, onVerifySuccess }) => {
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace') {
+      const newOtp = [...otp]
       if (!otp[index] && index > 0) {
-        const newOtp = [...otp]
         newOtp[index - 1] = ''
         setOtp(newOtp)
         inputsRef.current[index - 1]?.focus()
       } else {
-        const newOtp = [...otp]
         newOtp[index] = ''
         setOtp(newOtp)
       }
@@ -49,7 +49,7 @@ export const useOtpInput = ({ isExpired, onVerifySuccess }) => {
   }
 
   const handleResendOtp = () => {
-    if (isExpired) return
+    if (timeLeft <= 0) return
     setOtp(['', '', '', '', '', ''])
     setOtpError('')
     setShowResendToast(true)
@@ -59,17 +59,22 @@ export const useOtpInput = ({ isExpired, onVerifySuccess }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    if (isExpired) {
+    if (timeLeft <= 0) {
       setOtpError('Your 15-minute hold timer has expired. Please start a new reservation.')
       return
     }
 
     const enteredCode = otp.join('')
-    if (enteredCode.length === 6) {
+    if (enteredCode.length !== 6) {
+      setOtpError('Invalid verification code. Please enter all 6 digits.')
+      return
+    }
+
+    if (enteredCode === HARDCODED_OTP) {
       setOtpError('')
       onVerifySuccess()
     } else {
-      setOtpError('Invalid verification code. Please enter all 6 digits.')
+      setOtpError('Incorrect verification code. Please try again.')
     }
   }
 

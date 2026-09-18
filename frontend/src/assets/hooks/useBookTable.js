@@ -52,6 +52,9 @@ export const useBookTable = () => {
       return
     }
 
+    const FIFTEEN_MINUTES_IN_MS = 15 * 60 * 1000;
+    sessionStorage.setItem('pendingHoldExpiry', (Date.now() + FIFTEEN_MINUTES_IN_MS).toString());
+
     navigate('/email-verification', { state: { targetId }})
   }
 

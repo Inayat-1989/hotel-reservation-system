@@ -1,57 +1,39 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { removeReservation } from '../../components/data-storage/form-data.js'
-import { getRemainingHoldSeconds, clearHoldSession } from '../utils/timerUtils.js'
 
-export const useReservationHold = (booking, isVerified) => {
-  const [timeLeft, setTimeLeft] = useState(getRemainingHoldSeconds)
-  const [timerError, setTimerError] = useState('')
+export const useReservationHold = (targetId, isVerified) => {
+  const calculateRemainingSeconds = () => {
+    const expiry = sessionStorage.getItem('pendingHoldExpiry')
+    if (!expiry) return 0
+    const remaining = Math.floor((parseInt(expiry, 10) - Date.now()) / 1000)
+    return remaining > 0 ? remaining : 0
+  }
 
-  const isVerifiedRef = useRef(isVerified)
-  const bookingRef = useRef(booking)
-
-  useEffect(() => {
-    isVerifiedRef.current = isVerified
-    bookingRef.current = booking
-  }, [isVerified, booking])
+  const [timeLeft, setTimeLeft] = useState(calculateRemainingSeconds)
 
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (!isVerifiedRef.current && bookingRef.current?.id && !bookingRef.current?.isEditing) {
-        removeReservation(bookingRef.current.id)
-        clearHoldSession()
-      }
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [])
-
-  useEffect(() => {
-    if (isVerified) return
+    if (isVerified || !targetId) return
 
     const timer = setInterval(() => {
-      const expiry = sessionStorage.getItem('pendingHoldExpiry')
-      if (expiry) {
-        const remaining = Math.floor((parseInt(expiry, 10) - Date.now()) / 1000)
+      const remaining = calculateRemainingSeconds()
+      setTimeLeft(remaining)
 
-        if (remaining <= 0) {
-          clearInterval(timer)
-          setTimeLeft(0)
-          
-          if (bookingRef.current?.id && !bookingRef.current?.isEditing) {
-            removeReservation(bookingRef.current.id)
-          }
-
-          clearHoldSession()
-          setTimerError('Hold timer expired. Your pending table reservation change was canceled.')
-        } else {
-          setTimeLeft(remaining)
-        }
+      if (remaining <= 0) {
+        clearInterval(timer)
+        removeReservation(targetId)
+        sessionStorage.removeItem('pendingHoldExpiry')
       }
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [isVerified])
+  }, [isVerified, targetId])
 
-  return { timeLeft, timerError, setTimerError }
+  const clearHold = () => {
+    if (targetId) {
+      removeReservation(targetId)
+      sessionStorage.removeItem('pendingHoldExpiry')
+    }
+  }
+
+  return { timeLeft, clearHold }
 }

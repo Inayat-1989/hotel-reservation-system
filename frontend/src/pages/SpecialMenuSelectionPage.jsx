@@ -3,25 +3,19 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import MenuCard from '../components/common/MenuCard.jsx'
 import NextPageButton from '../components/common/NextPageButton.jsx'
 import { menuItemsData } from '../assets/constant-data/menu-items.js'
-import { addPendingReservation } from '../components/data-storage/form-data.js'
+import { addPendingReservation, findForm, updateReservation } from '../components/data-storage/form-data.js'
+import HeroHeading from '../components/common/HeroHeading.jsx'
 
 const SpecialMenuSelectionPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const bookingDetails = location.state?.bookingDetails || {
-    location: 'downtown',
-    date: new Date().toISOString().split('T')[0],
-    time: '18:00',
-    guests: '2',
-    fullName: 'Guest',
-    email: '',
-    phone: '',
-    specialRequests: ''
-  }
-
   const [selectedItemIds, setSelectedItemIds] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
+
+  const targetId = location?.state?.targetId
+
+  const bookingDetails = findForm(targetId)
 
   const specialDishes = menuItemsData
     .filter((item) => item.isSpecial)
@@ -41,12 +35,14 @@ const SpecialMenuSelectionPage = () => {
     const finalReservation = {
       ...bookingDetails,
       specialItems: selectedDishes,
-      id: Date.now().toString()
     }
 
-    addPendingReservation(finalReservation)
+    updateReservation(finalReservation)
 
-    navigate('/email-verification', { state: { booking: finalReservation } })
+    const FIFTEEN_MINUTES_IN_MS = 15 * 60 * 1000;
+    sessionStorage.setItem('pendingHoldExpiry', (Date.now() + FIFTEEN_MINUTES_IN_MS).toString());
+
+    navigate('/email-verification', { state: { targetId }})
   }
 
   return (
@@ -58,12 +54,7 @@ const SpecialMenuSelectionPage = () => {
           <span className="text-xs font-bold uppercase tracking-widest text-[#c93400] bg-[#c93400]/10 px-3 py-1 rounded-full border border-[#c93400]/30">
             Step 2: Pre-order Chef Specials
           </span>
-          <h1 className="text-3xl md:text-5xl font-bold text-white pt-2">
-            Select Special Dishes
-          </h1>
-          <p className="text-gray-300 text-sm md:text-base max-w-lg mx-auto">
-            Your booking is qualified for pre-ordered chef specials. Select one or multiple items to complement your table reservation.
-          </p>
+          <HeroHeading heading='Select Special Dishes' paragraph='Your booking is qualified for pre-ordered chef specials. Select one or multiple items to complement your table reservation.' />
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-black/40 border border-white/10 p-4 rounded-2xl mb-8">
@@ -131,7 +122,7 @@ const SpecialMenuSelectionPage = () => {
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-left text-xs text-gray-300">
             <p className="font-semibold text-white text-sm">
-              Reservation: <span className="text-[#c93400]">{bookingDetails.date}</span> at <span className="text-[#c93400]">{bookingDetails.time}</span> ({bookingDetails.guests} guests)
+              Reservation: <span className="text-[#c93400]">{bookingDetails?.date}</span> at <span className="text-[#c93400]">{bookingDetails?.time}</span> ({bookingDetails?.guests} guests)
             </p>
             <p className="text-gray-400 mt-1">
               Selected Special Items: {selectedDishes.length > 0 ? selectedDishes.map(d => d.title).join(', ') : 'None'}

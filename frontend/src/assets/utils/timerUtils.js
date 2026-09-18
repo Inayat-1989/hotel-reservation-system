@@ -17,8 +17,3 @@ export const getRemainingHoldSeconds = () => {
   sessionStorage.setItem('pendingHoldExpiry', newExpiry.toString())
   return 900
 }
-
-export const clearHoldSession = () => {
-  sessionStorage.removeItem('pendingReservation')
-  sessionStorage.removeItem('pendingHoldExpiry')
-}
