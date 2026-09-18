@@ -1,3 +1,4 @@
+import { findForm } from "../../components/data-storage/form-data"
 export const locationList = [
   {
     id: 'Downtown',
@@ -82,3 +83,25 @@ export const releaseSeats = (locationId, date, timeSlot, partySize) => {
 
   slotBookings[key] = Math.max(0, currentBooked - guestCount);
 }
+
+export const actualRemainingSeats = (selectedLocationId, selectedDate, selectedTime, isEditMode, targetId) => {
+  let remainingSeats = getAvailableSeats(selectedLocationId, selectedDate, selectedTime)
+  if(isEditMode) {
+    const form = findForm(targetId)
+    if (form.locationId === selectedLocationId) remainingSeats = remainingSeats + form?.guests
+  }
+  return remainingSeats
+}
+
+// export const getAvailableSeatsForSlot = (locationId, date, time, totalSeats) => {
+//   const existingBookingsForSlot = formList.filter(
+//     (b) => b.location === locationId && b.date === date && b.time === time
+//   )
+
+//   const totalBookedSeats = existingBookingsForSlot.reduce(
+//     (sum, b) => sum + parseInt(b.guests || 0, 10),
+//     0
+//   )
+
+//   return (totalSeats || 0) - totalBookedSeats
+// }

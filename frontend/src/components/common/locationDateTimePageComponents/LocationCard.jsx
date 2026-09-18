@@ -1,4 +1,5 @@
-const LocationCard = ({locationDetails, isSelected}) => {
+const LocationCard = ({locationDetails, isSelected, actualSeats}) => {
+    
   return (
 <>
     <div>
@@ -7,6 +8,7 @@ const LocationCard = ({locationDetails, isSelected}) => {
         </div>
         <p className="text-xs text-[#999999] mb-1">{locationDetails.address}</p>
         <p className="text-xs text-[#f59e0b] mb-4 font-medium">Capacity: {locationDetails.totalSeats} seats</p>
+        {isSelected?<p className="text-xs text-[#f59e0b] mb-4 font-medium">Remaining Seats: {actualSeats} seats</p> : <></>}
     </div>
     <div className="space-y-2 border-t border-white/10 pt-3 mb-4">
         <div className="flex justify-between text-xs">

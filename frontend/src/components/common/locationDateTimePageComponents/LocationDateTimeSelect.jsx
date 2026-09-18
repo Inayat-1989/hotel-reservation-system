@@ -1,6 +1,6 @@
 import LocationCard from './LocationCard.jsx'
 
-const LocationDateTimeSelect = ({selectedLocationId, locationList, setLocationId}) => {
+const LocationDateTimeSelect = ({selectedLocationId, locationList, setLocationId, actualSeats}) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 text-left">
         {locationList.map((locationDetails) => {
@@ -16,7 +16,7 @@ const LocationDateTimeSelect = ({selectedLocationId, locationList, setLocationId
                     : 'bg-white/5 border-white/10 hover:border-[#c93400]/50 hover:bg-white/10'
                 }`}
               >
-                <LocationCard locationDetails={locationDetails} isSelected={isSelected} />
+                <LocationCard locationDetails={locationDetails} isSelected={isSelected} actualSeats={actualSeats} />
               </div>
             )
           })}

@@ -49,7 +49,7 @@ const InsufficientSeats = ({
           }}
           className="w-full py-3 bg-[#c93400] hover:bg-[#a32a00] text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-[#c93400]/30"
         >
-          Select Next Available Date
+          Select different Location, Date or Time
         </button>
       </div>
     </div>

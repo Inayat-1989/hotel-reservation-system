@@ -5,6 +5,7 @@ import ReservationCard from '../components/common/myReservationComponents/Reserv
 import CancelReservation from '../components/common/myReservationComponents/CancelReservation.jsx'
 import HeroHeading from '../components/common/HeroHeading.jsx'
 import { useReservationManager } from '../assets/hooks/useReservationManager.js'
+import { slotBookings } from '../assets/constant-data/location-date-time.js'
 
 const MyReservationsPage = () => {
   const navigate = useNavigate()
@@ -33,7 +34,6 @@ const MyReservationsPage = () => {
           paragraph="Manage and view all your active dining bookings and previous visit history."
         />
 
-        {/* Tab Controls */}
         <div className="flex justify-center mb-8">
           <div className="bg-white/5 border border-white/10 p-1.5 rounded-full flex gap-2">
             <button
@@ -61,7 +61,6 @@ const MyReservationsPage = () => {
           </div>
         </div>
 
-        {/* Content View */}
         {currentList.length === 0 ? (
           <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center space-y-4">
             <div className="text-4xl">🍽️</div>

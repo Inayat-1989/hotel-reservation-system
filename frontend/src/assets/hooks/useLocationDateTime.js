@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { locationList } from '../constant-data/location-date-time.js'
-import { addPendingReservation, formList, updateReservation } from '../../components/data-storage/form-data.js'
+import { locationList, actualRemainingSeats, releaseSeats, reserveSeats } from '../constant-data/location-date-time.js'
+import { addPendingReservation, findForm, formList, updateReservation } from '../../components/data-storage/form-data.js'
 import { useGuestDateTime } from './useGuestDateTime.js'
 import { getTodayStr, isLessThan24HoursAway } from '../utils/locationDateTimeUtils.js'
 
@@ -10,6 +10,7 @@ export const useLocationDateTime = () => {
   const location = useLocation()
 
   const isEditMode = Boolean(location.state?.targetId)
+  const targetId = location.state?.targetId
   const [selectedLocationId, setSelectedLocationId] = useState(locationList[0].id)
   const [errorMessage, setErrorMessage] = useState(null)
 
@@ -17,6 +18,8 @@ export const useLocationDateTime = () => {
 
   const { selectedDate, selectedTime, guests, isCalendarOpen, showClosedModal, availableSlots } = dateTimeState
   const { setSelectedDate, setSelectedTime, setGuests, setIsCalendarOpen, setShowClosedModal } = dateTimeActions
+
+  const actualSeats = actualRemainingSeats(selectedLocationId, selectedDate, selectedTime, isEditMode, targetId)
 
   const handleLocationSelect = (locId) => {
     setSelectedLocationId(locId)
@@ -29,15 +32,26 @@ export const useLocationDateTime = () => {
       e.stopPropagation()
     }
 
+    let message = ''
+
     if (!selectedTime) {
       setShowClosedModal(true)
       return
     }
 
+
     const selectedSlot = availableSlots?.find((slot) => slot.value24 === selectedTime)
+    if(isEditMode) {
+      const targetId = location.state.targetId
+      const form = findForm(targetId)
+      releaseSeats(form.locationId,form.date, form.time,form.guests)
+    }
+    if(!reserveSeats(selectedLocationId,selectedDate, selectedTime, guests)) {
+      setShowClosedModal(true)
+      return
+    }
     const isUrgentBooking = isLessThan24HoursAway(selectedDate, selectedTime)
 
-    let message = ''
     if (isUrgentBooking) {
       message = "Less than 24 Hour Booking Special Items won't be allowed."
     }
@@ -59,7 +73,7 @@ export const useLocationDateTime = () => {
       guests: guests,
       hasSpecialMenu: !isUrgentBooking,
       specialItems: isUrgentBooking ? [] : (location.state?.specialItems || []),
-      message: message
+      message: message,
     }
 
     if (isEditMode) {
@@ -81,6 +95,7 @@ export const useLocationDateTime = () => {
       isCalendarOpen,
       showClosedModal,
       availableSlots,
+      actualSeats,
     },
     actions: {
       setLocationId: handleLocationSelect,

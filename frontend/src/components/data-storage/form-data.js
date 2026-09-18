@@ -1,6 +1,5 @@
 import { 
-  reserveSeats, 
-  releaseSeats, 
+  releaseSeats
 } from "../../assets/constant-data/location-date-time.js"
 
 export const formList = []
@@ -68,8 +67,15 @@ export const updateReservation = (reservationData) => {
   const existingIndex = findFormIndex(reservationData.id)
 
   if (existingIndex !== -1) {
+    releaseSeats(location)
     formList[existingIndex] = { ...formList[existingIndex], ...reservationData }
+
   } else {
     return
   }
+}
+
+export const isBookingUpcoming = (resDate, resTime) => {
+  const bookingDateTime = new Date(`${resDate}T${resTime || '00:00'}`)
+  return bookingDateTime >= new Date()
 }

@@ -1,4 +1,4 @@
-import { findLocationObject, getAvailableSeats, locationList } from '../constant-data/location-date-time.js'
+import { findLocationObject } from '../constant-data/location-date-time.js'
 
 
 export const getTodayStr = () => new Date().toISOString().split('T')[0]

@@ -21,6 +21,7 @@ const LocationDateTimePage = () => {
     showClosedModal,
     availableSlots,
     errorMessage,
+    actualSeats,
   } = state
 
   const {
@@ -46,6 +47,7 @@ const LocationDateTimePage = () => {
           selectedLocationId={selectedLocationId}
           locationList={locationList}
           setLocationId={setLocationId} 
+          actualSeats={actualSeats}
         />
         
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">

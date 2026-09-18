@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
-import { formList, removeReservation } from '../../components/data-storage/form-data.js'
-import { isBookingUpcoming } from '../utils/reservationUtils.js'
+import { formList, removeReservation, isBookingUpcoming } from '../../components/data-storage/form-data.js'
 
 export const useReservationManager = () => {
   const [reservations, setReservations] = useState([...formList])
