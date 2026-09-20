@@ -1,5 +1,3 @@
-import React from 'react'
-
 const Footer = () => {
   return (
     <footer data-theme='caramellatte' className="footer sm:footer-horizontal bg-neutral text-neutral-content items-center p-4">

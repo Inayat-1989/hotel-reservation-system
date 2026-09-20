@@ -1,16 +1,20 @@
 import { Route, Routes } from 'react-router-dom'
-import HomePage from './pages/HomePage.jsx'
-import BookTablePage from './pages/BookTablePage.jsx'
-import LocationDateTimePage from './pages/LocationDateTimePage.jsx'
-import ContactPage from './pages/ContactPage.jsx'
+
+import './App.css'
+
+import heroBg from '../src/assets/images/hero-background.jpg'
+
 import Header from './components/layout/Header.jsx'
 import Footer from './components/layout/Footer.jsx'
-import MenuPage from './pages/MenuPage.jsx'
-import './App.css'
-import heroBg from '../src/assets/hero-background.jpg'
-import MyReservationPage from './pages/MyReservationPage.jsx'
-import SpecialMenuSelectionPage from './pages/SpecialMenuSelectionPage.jsx'
-import EmailVerificationPage from './pages/EmailVerificationPage.jsx'
+
+import HomePage from './pages/Home/HomePage.jsx'
+import MenuPage from './pages/Menu/MenuPage.jsx'
+import LocationDateTimePage from './pages/LocationDateTime/LocationDateTimePage.jsx'
+import BookTablePage from './pages/BookTable/BookTablePage.jsx'
+import SpecialMenuSelectionPage from './pages/SpecialMenuSelection/SpecialMenuSelectionPage.jsx'
+import EmailVerificationPage from './pages/EmailVerification/EmailVerificationPage.jsx'
+import MyReservationPage from './pages/MyReservation/MyReservationPage.jsx'
+import ContactPage from './pages/Contact/ContactPage.jsx'
 
 const App = () => {
   return (
