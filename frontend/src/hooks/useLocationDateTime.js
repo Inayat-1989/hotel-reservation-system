@@ -96,7 +96,7 @@ export const useLocationDateTime = () => {
     }
 
     const targetId = isEditMode
-      ? location.state.id
+      ? location.state.targetId
       : `RES-${Date.now().toString().slice(-6)}`;
 
     const bookingDetails = {

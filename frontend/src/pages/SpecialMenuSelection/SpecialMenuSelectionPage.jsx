@@ -46,10 +46,10 @@ const SpecialMenuSelectionPage = () => {
     updateReservation(finalReservation);
 
     const FIFTEEN_MINUTES_IN_MS = 15 * 60 * 1000;
-    const time = new Date();
     sessionStorage.setItem(
       'pendingHoldExpiry',
-      (time.now() + FIFTEEN_MINUTES_IN_MS).toString()
+      // eslint-disable-next-line react-hooks/purity
+      (Date.now() + FIFTEEN_MINUTES_IN_MS).toString()
     );
 
     navigate('/email-verification', { state: { targetId } });
