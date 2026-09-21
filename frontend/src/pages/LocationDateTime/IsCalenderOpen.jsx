@@ -1,16 +1,16 @@
-import ThemedCalender from '../../components/ui/ThemedCalender'
+import ThemedCalender from '../../components/ui/ThemedCalender';
 
-const IsCalenderOpen = ({ 
-  isCalendarOpen, 
-  setIsCalendarOpen, 
-  selectedDate, 
-  setSelectedDate, 
-  selectedLocationId, 
+const IsCalenderOpen = ({
+  isCalendarOpen,
+  setIsCalendarOpen,
+  selectedDate,
+  setSelectedDate,
+  selectedLocationId,
 }) => {
   if (!isCalendarOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
       onClick={() => setIsCalendarOpen(false)}
     >
@@ -25,4 +25,4 @@ const IsCalenderOpen = ({
   );
 };
 
-export default IsCalenderOpen
+export default IsCalenderOpen;

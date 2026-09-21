@@ -1,15 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom';
 
-import HeroHeading from '../../components/ui/HeroHeading.jsx'
-import NextPageButton from '../../components/navigation/NextPageButton.jsx'
+import HeroHeading from '../../components/ui/HeroHeading.jsx';
+import NextPageButton from '../../components/navigation/NextPageButton.jsx';
 
-import ReservationCard from './ReservationCard.jsx'
-import CancelReservation from './CancelReservation.jsx'
+import ReservationCard from './ReservationCard.jsx';
+import CancelReservation from './CancelReservation.jsx';
 
-import { useReservationManager } from '../../hooks/useReservationManager.js'
+import { useReservationManager } from '../../hooks/useReservationManager.js';
 
 const MyReservationsPage = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const {
     activeTab,
     setActiveTab,
@@ -19,13 +19,13 @@ const MyReservationsPage = () => {
     pastList,
     currentList,
     confirmCancelReservation,
-  } = useReservationManager()
+  } = useReservationManager();
 
   const handleOpenEdit = (reservation) => {
     navigate('/location-date-time', {
       state: { targetId: reservation.id },
-    })
-  }
+    });
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-8 animate-fade-in relative">
@@ -104,7 +104,7 @@ const MyReservationsPage = () => {
         onConfirm={confirmCancelReservation}
       />
     </div>
-  )
-}
+  );
+};
 
-export default MyReservationsPage
+export default MyReservationsPage;

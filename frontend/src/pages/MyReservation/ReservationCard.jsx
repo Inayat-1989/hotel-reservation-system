@@ -1,9 +1,9 @@
-import { isBookingUpcoming } from '../../services/form-data.js'
-import { findPerson } from '../../services/person-date.js'
+import { isBookingUpcoming } from '../../services/form-data.js';
+import { findPerson } from '../../services/person-date.js';
 
 const ReservationCard = ({ reservation, onEdit, onCancel }) => {
-  const isUpcoming = isBookingUpcoming(reservation.date, reservation.time)
-  const name = findPerson(reservation.email).name
+  const isUpcoming = isBookingUpcoming(reservation.date, reservation.time);
+  const name = findPerson(reservation.email).name;
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-white/20 transition-all">
@@ -30,12 +30,22 @@ const ReservationCard = ({ reservation, onEdit, onCancel }) => {
 
         <div className="text-xs text-gray-300 space-y-1">
           <p>
-            👤 <strong className="text-white">{name || 'Guest'}</strong> ({reservation.email || 'N/A'})
+            👤 <strong className="text-white">{name || 'Guest'}</strong> (
+            {reservation.email || 'N/A'})
           </p>
           <div className="flex flex-wrap items-center gap-4 pt-1">
-            <span>📅 <strong className="text-white">{reservation.date}</strong></span>
-            <span>⏰ <strong className="text-white">{reservation.time}</strong></span>
-            <span>👥 <strong className="text-white">{reservation.guests} Guests</strong></span>
+            <span>
+              📅 <strong className="text-white">{reservation.date}</strong>
+            </span>
+            <span>
+              ⏰ <strong className="text-white">{reservation.time}</strong>
+            </span>
+            <span>
+              👥{' '}
+              <strong className="text-white">
+                {reservation.guests} Guests
+              </strong>
+            </span>
           </div>
         </div>
 
@@ -65,7 +75,7 @@ const ReservationCard = ({ reservation, onEdit, onCancel }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ReservationCard
+export default ReservationCard;

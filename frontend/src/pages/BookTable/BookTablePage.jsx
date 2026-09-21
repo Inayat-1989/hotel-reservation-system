@@ -1,22 +1,15 @@
-import HeroHeading from '../../components/ui/HeroHeading.jsx'
-import NextPageButton from '../../components/navigation/NextPageButton.jsx'
+import HeroHeading from '../../components/ui/HeroHeading.jsx';
+import NextPageButton from '../../components/navigation/NextPageButton.jsx';
 
-import SelectedLocationDetail from './SelectedLocationDetail.jsx'
-import ContactForm from './ContactForm.jsx'
+import SelectedLocationDetail from './SelectedLocationDetail.jsx';
+import ContactForm from './ContactForm.jsx';
 
-import { useBookTable } from '../../hooks/useBookTable.js'
+import { useBookTable } from '../../hooks/useBookTable.js';
 
 const BookTablePage = () => {
-  const {state, actions} = useBookTable()
-  const {
-    targetId,
-    errorMessage,
-  } = state
-  const {
-    handleChange,
-    handleProceed,
-    navigate,
-  } = actions
+  const { state, actions } = useBookTable();
+  const { targetId, errorMessage } = state;
+  const { handleChange, handleProceed, navigate } = actions;
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-8 animate-fade-in relative">
@@ -53,7 +46,7 @@ const BookTablePage = () => {
 
       <NextPageButton to="/my-reservation" name="Reservations" />
     </div>
-  )
-}
+  );
+};
 
-export default BookTablePage
+export default BookTablePage;

@@ -1,13 +1,15 @@
-import { findForm } from '../../services/form-data.js'
-import { findPerson } from '../../services/person-date.js'
+import { findForm } from '../../services/form-data.js';
+import { findPerson } from '../../services/person-date.js';
 
 const ContactForm = ({ targetId, onChange }) => {
-  const form = findForm(targetId)
-  const person = findPerson(form?.email)
+  const form = findForm(targetId);
+  const person = findPerson(form?.email);
   return (
     <div className="space-y-6">
       <div className="border-t border-white/10 pt-6 space-y-4 text-left">
-        <h3 className="text-base font-semibold text-[#c93400]">Contact Details</h3>
+        <h3 className="text-base font-semibold text-[#c93400]">
+          Contact Details
+        </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -52,7 +54,7 @@ const ContactForm = ({ targetId, onChange }) => {
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ContactForm
+export default ContactForm;

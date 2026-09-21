@@ -12,7 +12,7 @@ const ContactUsMainContentCard = ({ symbol, heading, listOfItems }) => {
         ))}
       </ul>
     </div>
-  )
-}
+  );
+};
 
-export default ContactUsMainContentCard
+export default ContactUsMainContentCard;

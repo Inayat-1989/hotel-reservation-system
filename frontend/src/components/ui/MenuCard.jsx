@@ -1,37 +1,39 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-const MenuCard = ({ 
+const MenuCard = ({
   id,
-  src, 
-  title = "Card Title", 
-  description = "A card component has a figure, a body part, and inside body there are title and actions parts",
+  src,
+  title = 'Card Title',
+  description = 'A card component has a figure, a body part, and inside body there are title and actions parts',
   price,
   isSpecial = false,
   isAvailable = true,
   isSelected = false,
   onSelect,
   isSelectable = false,
-  disabledMessage = ""
+  disabledMessage = '',
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
     if (isSelectable && isAvailable && !disabledMessage && onSelect) {
-      onSelect(id)
+      onSelect(id);
     }
-  }
+  };
 
   return (
     <>
-      <div 
+      <div
         onClick={handleCardClick}
         className={`card w-full min-w-0 shadow-md border transition-all duration-300 overflow-hidden flex flex-col justify-between relative ${
-          isSelectable && isAvailable && !disabledMessage ? 'cursor-pointer' : ''
+          isSelectable && isAvailable && !disabledMessage
+            ? 'cursor-pointer'
+            : ''
         } ${
-          isSelected 
-            ? 'bg-amber-500/10 border-[#c93400] ring-2 ring-[#c93400] shadow-xl scale-[1.01]' 
+          isSelected
+            ? 'bg-amber-500/10 border-[#c93400] ring-2 ring-[#c93400] shadow-xl scale-[1.01]'
             : 'bg-white border-[#c93400]/20 hover:shadow-xl hover:border-[#c93400]'
-        } ${(!isAvailable || disabledMessage) ? 'opacity-60' : ''}`}
+        } ${!isAvailable || disabledMessage ? 'opacity-60' : ''}`}
       >
         <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-center pointer-events-none">
           {isSpecial && (
@@ -46,11 +48,11 @@ const MenuCard = ({
           )}
         </div>
 
-        <figure 
+        <figure
           className="px-6 pt-6 w-full shrink-0 cursor-pointer group/img"
           onClick={(e) => {
-            e.stopPropagation()
-            setIsModalOpen(true)
+            e.stopPropagation();
+            setIsModalOpen(true);
           }}
           title="Click to expand"
         >
@@ -71,10 +73,18 @@ const MenuCard = ({
         <div className="card-body items-center text-center p-6 flex-1 flex flex-col justify-between">
           <div className="w-full">
             <div className="flex justify-between items-center gap-2 mb-2">
-              <h2 className="card-title text-[#c93400] text-xl font-bold line-clamp-1">{title}</h2>
-              {price && <span className="text-gray-900 font-extrabold text-base whitespace-nowrap">{price}</span>}
+              <h2 className="card-title text-[#c93400] text-xl font-bold line-clamp-1">
+                {title}
+              </h2>
+              {price && (
+                <span className="text-gray-900 font-extrabold text-base whitespace-nowrap">
+                  {price}
+                </span>
+              )}
             </div>
-            <p className="text-gray-700 text-sm line-clamp-3 text-left">{description}</p>
+            <p className="text-gray-700 text-sm line-clamp-3 text-left">
+              {description}
+            </p>
           </div>
 
           {disabledMessage ? (
@@ -101,15 +111,15 @@ const MenuCard = ({
       </div>
 
       {isModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setIsModalOpen(false)}
         >
-          <div 
+          <div
             className="relative max-w-4xl max-h-[90vh] bg-white p-4 rounded-2xl shadow-2xl flex flex-col items-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <button 
+            <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-[#c93400] text-white font-bold hover:bg-red-700 transition-colors shadow-md"
               aria-label="Close full view"
@@ -117,18 +127,20 @@ const MenuCard = ({
               ✕
             </button>
 
-            <img 
-              src={src} 
-              alt={title} 
+            <img
+              src={src}
+              alt={title}
               className="max-w-full max-h-[75vh] object-contain rounded-lg"
             />
 
-            <h3 className="text-[#c93400] text-xl font-bold mt-3 text-center">{title}</h3>
+            <h3 className="text-[#c93400] text-xl font-bold mt-3 text-center">
+              {title}
+            </h3>
           </div>
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
-export default MenuCard
+export default MenuCard;

@@ -1,5 +1,5 @@
 const CancelReservationModal = ({ isOpen, onClose, onConfirm }) => {
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -7,7 +7,8 @@ const CancelReservationModal = ({ isOpen, onClose, onConfirm }) => {
         <div className="text-4xl">⚠️</div>
         <h3 className="text-xl font-bold text-white">Cancel Reservation?</h3>
         <p className="text-xs text-gray-300">
-          Are you sure you want to cancel this booking? This step cannot be undone.
+          Are you sure you want to cancel this booking? This step cannot be
+          undone.
         </p>
         <div className="flex gap-3 justify-center">
           <button
@@ -27,7 +28,7 @@ const CancelReservationModal = ({ isOpen, onClose, onConfirm }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CancelReservationModal
+export default CancelReservationModal;

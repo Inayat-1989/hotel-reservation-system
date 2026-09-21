@@ -1,4 +1,4 @@
-import { CATEGORIES } from '../../services/menu-items.js'
+import { CATEGORIES } from '../../services/menu-items.js';
 
 const MenuSearch = ({
   activeCategory,
@@ -48,7 +48,7 @@ const MenuSearch = ({
         </span>
       </label>
     </div>
-  )
-}
+  );
+};
 
-export default MenuSearch
+export default MenuSearch;

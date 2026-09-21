@@ -1,39 +1,37 @@
-import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import NextPageButton from '../../components/navigation/NextPageButton.jsx'
+import NextPageButton from '../../components/navigation/NextPageButton.jsx';
 
-import OtpInputGroup from './OtpInputGroup.jsx'
-import ReservationSuccessCard from './ReservationSuccessCard.jsx'
+import OtpInputGroup from './OtpInputGroup.jsx';
+import ReservationSuccessCard from './ReservationSuccessCard.jsx';
 
-import { useReservationHold } from '../../hooks/useReservationHold.js'
-import { useOtpInput } from '../../hooks/useOtpInput.js'
+import { useReservationHold } from '../../hooks/useReservationHold.js';
+import { useOtpInput } from '../../hooks/useOtpInput.js';
 
-import { formatTimer } from '../../utils/timerUtils.js'
+import { formatTimer } from '../../utils/timerUtils.js';
 
-import { updateReservation, findForm } from '../../services/form-data.js'
-
-
+import { updateReservation, findForm } from '../../services/form-data.js';
 
 const EmailVerificationPage = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const targetId = location?.state?.targetId
+  const navigate = useNavigate();
+  const location = useLocation();
+  const targetId = location?.state?.targetId;
 
-  const bookingDetails = findForm(targetId)
-  const [isVerified, setIsVerified] = useState(false)
+  const bookingDetails = findForm(targetId);
+  const [isVerified, setIsVerified] = useState(false);
 
-  const { timeLeft, clearHold } = useReservationHold(targetId, isVerified)
+  const { timeLeft, clearHold } = useReservationHold(targetId, isVerified);
 
   const handleVerifySuccess = () => {
     const updatedBooking = {
       ...bookingDetails,
       status: 'confirmed',
-    }
-    updateReservation(updatedBooking)
-    sessionStorage.removeItem('pendingHoldExpiry')
-    setIsVerified(true)
-  }
+    };
+    updateReservation(updatedBooking);
+    sessionStorage.removeItem('pendingHoldExpiry');
+    setIsVerified(true);
+  };
 
   const {
     otp,
@@ -44,12 +42,12 @@ const EmailVerificationPage = () => {
     handleKeyDown,
     handleResendOtp,
     handleSubmit,
-  } = useOtpInput({ timeLeft, onVerifySuccess: handleVerifySuccess })
+  } = useOtpInput({ timeLeft, onVerifySuccess: handleVerifySuccess });
 
   const handleCancelHold = () => {
-    clearHold()
-    navigate('/location-date-time')
-  }
+    clearHold();
+    navigate('/location-date-time');
+  };
 
   if (!bookingDetails || (timeLeft <= 0 && !isVerified)) {
     return (
@@ -64,7 +62,7 @@ const EmailVerificationPage = () => {
           Start New Booking
         </button>
       </div>
-    )
+    );
   }
 
   return (
@@ -85,11 +83,16 @@ const EmailVerificationPage = () => {
             <h1 className="text-3xl font-bold">Verify Your Reservation</h1>
             <p className="text-sm text-gray-300">
               We sent a verification code to{' '}
-              <span className="text-white font-semibold">{bookingDetails?.email}</span>.
+              <span className="text-white font-semibold">
+                {bookingDetails?.email}
+              </span>
+              .
             </p>
 
             <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl max-w-sm mx-auto">
-              <p className="text-xs text-amber-300 font-medium">Table Hold Time Remaining</p>
+              <p className="text-xs text-amber-300 font-medium">
+                Table Hold Time Remaining
+              </p>
               <div className="text-3xl font-mono font-bold text-amber-400 mt-1">
                 {formatTimer(timeLeft)}
               </div>
@@ -149,7 +152,7 @@ const EmailVerificationPage = () => {
         <NextPageButton to="/my-reservation" name="Reservations" />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EmailVerificationPage
+export default EmailVerificationPage;

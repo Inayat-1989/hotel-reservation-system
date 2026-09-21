@@ -17,7 +17,7 @@ const OtpInputGroup = ({ otp, disabled, inputsRef, onChange, onKeyDown }) => {
         />
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default OtpInputGroup
+export default OtpInputGroup;

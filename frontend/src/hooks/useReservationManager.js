@@ -1,35 +1,39 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react';
 
-import { formList, removeReservation, isBookingUpcoming } from '../services/form-data.js'
+import {
+  formList,
+  removeReservation,
+  isBookingUpcoming,
+} from '../services/form-data.js';
 
 export const useReservationManager = () => {
-  const [reservations, setReservations] = useState([...formList])
-  const [activeTab, setActiveTab] = useState('upcoming')
-  const [cancelModalId, setCancelModalId] = useState(null)
+  const [reservations, setReservations] = useState([...formList]);
+  const [activeTab, setActiveTab] = useState('upcoming');
+  const [cancelModalId, setCancelModalId] = useState(null);
 
   const { upcomingList, pastList } = useMemo(() => {
-    const upcoming = []
-    const past = []
+    const upcoming = [];
+    const past = [];
 
     reservations.forEach((res) => {
       if (isBookingUpcoming(res.date, res.time)) {
-        upcoming.push(res)
+        upcoming.push(res);
       } else {
-        past.push(res)
+        past.push(res);
       }
-    })
+    });
 
-    return { upcomingList: upcoming, pastList: past }
-  }, [reservations])
+    return { upcomingList: upcoming, pastList: past };
+  }, [reservations]);
 
-  const currentList = activeTab === 'upcoming' ? upcomingList : pastList
+  const currentList = activeTab === 'upcoming' ? upcomingList : pastList;
 
   const confirmCancelReservation = () => {
-    if (!cancelModalId) return
-    removeReservation(cancelModalId)
-    setReservations((prev) => prev.filter((res) => res.id !== cancelModalId))
-    setCancelModalId(null)
-  }
+    if (!cancelModalId) return;
+    removeReservation(cancelModalId);
+    setReservations((prev) => prev.filter((res) => res.id !== cancelModalId));
+    setCancelModalId(null);
+  };
 
   return {
     activeTab,
@@ -40,5 +44,5 @@ export const useReservationManager = () => {
     pastList,
     currentList,
     confirmCancelReservation,
-  }
-}
+  };
+};

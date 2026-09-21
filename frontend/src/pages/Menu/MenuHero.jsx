@@ -1,6 +1,6 @@
-import HeroHeading from '../../components/ui/HeroHeading.jsx'
+import HeroHeading from '../../components/ui/HeroHeading.jsx';
 
-import MenuSearch from './MenuSearch.jsx'
+import MenuSearch from './MenuSearch.jsx';
 
 const MenuHero = ({
   activeCategory,
@@ -25,7 +25,7 @@ const MenuHero = ({
         setSpecialsOnly={setSpecialsOnly}
       />
     </div>
-  )
-}
+  );
+};
 
-export default MenuHero
+export default MenuHero;

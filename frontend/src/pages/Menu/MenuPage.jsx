@@ -1,48 +1,51 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-import NextPageButton from '../../components/navigation/NextPageButton.jsx'
+import NextPageButton from '../../components/navigation/NextPageButton.jsx';
 
-import MenuHero from './MenuHero.jsx'
-import Menu from './Menu.jsx'
+import MenuHero from './MenuHero.jsx';
+import Menu from './Menu.jsx';
 
-import { menuItemsData } from '../../services/menu-items.js'
+import { menuItemsData } from '../../services/menu-items.js';
 
 const MenuPage = () => {
-  const [activeCategory, setActiveCategory] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [specialsOnly, setSpecialsOnly] = useState(false)
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [specialsOnly, setSpecialsOnly] = useState(false);
 
   const filteredItems = menuItemsData.filter((item) => {
-    const matchesCategory = activeCategory === 'all' || item.category === activeCategory
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase().trim())
-    const matchesSpecials = !specialsOnly || item.isSpecial
+    const matchesCategory =
+      activeCategory === 'all' || item.category === activeCategory;
+    const matchesSearch = item.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase().trim());
+    const matchesSpecials = !specialsOnly || item.isSpecial;
 
-    return matchesCategory && matchesSearch && matchesSpecials
-  })
+    return matchesCategory && matchesSearch && matchesSpecials;
+  });
 
   const handleQuerySearch = (e) => {
-    setSearchQuery(e.target.value)
-  }
+    setSearchQuery(e.target.value);
+  };
 
   const handleActiveCategory = (category) => {
-    setActiveCategory(category)
-  }
-  
+    setActiveCategory(category);
+  };
+
   return (
     <>
-    <MenuHero
+      <MenuHero
         searchQuery={searchQuery}
         setSearchQuery={handleQuerySearch}
         setActiveCategory={handleActiveCategory}
         activeCategory={activeCategory}
         specialsOnly={specialsOnly}
         setSpecialsOnly={setSpecialsOnly}
-    />
-    <Menu filteredItems={filteredItems} />
+      />
+      <Menu filteredItems={filteredItems} />
 
-    <NextPageButton to="/location-date-time" name="Book a Table" />
+      <NextPageButton to="/location-date-time" name="Book a Table" />
     </>
-  )
-}
+  );
+};
 
-export default MenuPage
+export default MenuPage;
