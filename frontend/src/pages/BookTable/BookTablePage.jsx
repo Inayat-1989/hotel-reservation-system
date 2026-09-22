@@ -1,15 +1,17 @@
+import { useNavigate } from 'react-router-dom';
+
 import HeroHeading from '../../components/ui/HeroHeading.jsx';
 import NextPageButton from '../../components/navigation/NextPageButton.jsx';
 
 import SelectedLocationDetail from './SelectedLocationDetail.jsx';
 import ContactForm from './ContactForm.jsx';
 
+import useBooking from '../../hooks/useBooking.js';
 import { useBookTable } from '../../hooks/useBookTable.js';
 
 const BookTablePage = () => {
-  const { state, actions } = useBookTable();
-  const { targetId, errorMessage } = state;
-  const { handleChange, handleProceed, navigate } = actions;
+  const { errorMessage } = useBooking();
+  const navigate = useNavigate();
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-8 animate-fade-in relative">
@@ -19,29 +21,17 @@ const BookTablePage = () => {
           paragraph="Complete your contact details to reserve your dining experience."
         />
 
-        <form onSubmit={handleProceed} className="space-y-6" noValidate>
+        <div className="space-y-6" noValidate>
           {errorMessage && (
             <div className="bg-rose-500/20 border border-rose-500/50 text-rose-300 px-4 py-3 rounded-xl text-xs md:text-sm text-center font-medium animate-pulse">
               ⚠️ {errorMessage}
             </div>
           )}
 
-          <SelectedLocationDetail
-            targetId={targetId}
-            onChangeDetails={() => navigate(-1)}
-          />
+          <SelectedLocationDetail onChangeDetails={() => navigate(-1)} />
 
-          <ContactForm handleChange={handleChange} targetId={targetId} />
-
-          <div className="pt-4 text-center">
-            <button
-              type="submit"
-              className="w-full md:w-auto px-10 py-3.5 rounded-full bg-[#c93400] text-white text-lg font-bold shadow-lg hover:bg-white hover:text-[#c93400] transition-all duration-300 transform hover:scale-105"
-            >
-              Proceed to Booking
-            </button>
-          </div>
-        </form>
+          <ContactForm />
+        </div>
       </div>
 
       <NextPageButton to="/my-reservation" name="Reservations" />

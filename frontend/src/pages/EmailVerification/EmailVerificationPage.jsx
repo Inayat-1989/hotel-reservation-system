@@ -1,34 +1,34 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import NextPageButton from '../../components/navigation/NextPageButton.jsx';
-
 import OtpInputGroup from './OtpInputGroup.jsx';
 import ReservationSuccessCard from './ReservationSuccessCard.jsx';
 
 import { useReservationHold } from '../../hooks/useReservationHold.js';
 import { useOtpInput } from '../../hooks/useOtpInput.js';
+import useBooking from '../../hooks/useBooking.js'; // Added missing booking hook
 
 import { formatTimer } from '../../utils/timerUtils.js';
-
-import { updateReservation, findForm } from '../../services/form-data.js';
+import { updateReservation } from '../../services/form-data.js';
 
 const EmailVerificationPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const targetId = location?.state?.targetId;
 
-  const bookingDetails = findForm(targetId);
+  // 1. Pull dynamic booking application data
+  const { bookingData, clearBooking } = useBooking();
+
+  // 2. Local state tracking verification status
   const [isVerified, setIsVerified] = useState(false);
 
-  const { timeLeft, clearHold } = useReservationHold(targetId, isVerified);
+  // 3. Connect timer hold using local state
+  const { timeLeft, clearHold } = useReservationHold(isVerified);
 
   const handleVerifySuccess = () => {
-    const updatedBooking = {
-      ...bookingDetails,
-      status: 'confirmed',
-    };
-    updateReservation(updatedBooking);
+    if (bookingData) {
+      const updatedBooking = { ...bookingData, status: 'confirmed' };
+      updateReservation(updatedBooking);
+    }
     sessionStorage.removeItem('pendingHoldExpiry');
     setIsVerified(true);
   };
@@ -49,7 +49,7 @@ const EmailVerificationPage = () => {
     navigate('/location-date-time');
   };
 
-  if (!bookingDetails || (timeLeft <= 0 && !isVerified)) {
+  if (!bookingData || (timeLeft <= 0 && !isVerified)) {
     return (
       <div className="w-full min-h-screen flex flex-col items-center justify-center text-white px-4">
         <p className="text-gray-300 text-center">
@@ -69,7 +69,7 @@ const EmailVerificationPage = () => {
     <div className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-8 text-white animate-fade-in relative">
       {showResendToast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white px-6 py-3 rounded-full shadow-2xl border border-white/20 text-xs font-semibold animate-bounce">
-          ✉️ A new verification code has been sent to {bookingDetails?.email}
+          ✉️ A new verification code has been sent to {bookingData?.email}
         </div>
       )}
 
@@ -84,7 +84,7 @@ const EmailVerificationPage = () => {
             <p className="text-sm text-gray-300">
               We sent a verification code to{' '}
               <span className="text-white font-semibold">
-                {bookingDetails?.email}
+                {bookingData?.email}
               </span>
               .
             </p>
@@ -142,7 +142,7 @@ const EmailVerificationPage = () => {
           </div>
         ) : (
           <ReservationSuccessCard
-            booking={{ ...bookingDetails, status: 'confirmed' }}
+            booking={{ ...bookingData, status: 'confirmed' }}
             onHomeClick={() => navigate('/')}
           />
         )}

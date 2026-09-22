@@ -1,8 +1,11 @@
-import { findForm } from '../../services/form-data.js';
+import useBooking from '../../hooks/useBooking.js';
+import {
+  getTimeNow,
+  parseValueFromDate,
+} from '../../utils/locationDateTimeUtils.js';
 
-const SelectedLocationDetail = ({ targetId, onChangeDetails }) => {
-  const formData = findForm(targetId);
-  const guestCount = parseInt(formData?.guests, 10);
+const SelectedLocationDetail = ({ onChangeDetails }) => {
+  const { bookingData } = useBooking();
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 mb-6">
@@ -25,21 +28,23 @@ const SelectedLocationDetail = ({ targetId, onChangeDetails }) => {
             Location
           </span>
           <span className="text-base font-semibold text-white">
-            {formData?.locationId}
+            {bookingData?.locationId}
           </span>
         </div>
         <div>
           <span className="block text-xs text-gray-400 font-medium">Date</span>
           <span className="text-base font-semibold text-white">
-            {formData?.date}
+            {bookingData?.date
+              ? bookingData.date
+              : parseValueFromDate(getTimeNow())}
           </span>
         </div>
         <div>
           <span className="block text-xs text-gray-400 font-medium">
             Time Slot
           </span>
-          <span className="text-base font-semibold text-[#c93400]">
-            {formData?.timeLabel}
+          <span className="text-base font-semibold text-white">
+            {bookingData?.timeSlot}
           </span>
         </div>
         <div>
@@ -47,7 +52,8 @@ const SelectedLocationDetail = ({ targetId, onChangeDetails }) => {
             Guests
           </span>
           <span className="text-base font-semibold text-white">
-            {formData?.guests} {guestCount === 1 ? 'Guest' : 'Guests'}
+            {bookingData?.guests}{' '}
+            {bookingData.guests === 1 ? 'Guest' : 'Guests'}
           </span>
         </div>
       </div>

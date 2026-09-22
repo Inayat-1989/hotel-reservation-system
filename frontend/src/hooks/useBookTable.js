@@ -1,34 +1,35 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-import { updateReservation, findForm } from '../services/form-data.js';
 import { validateContactDetails } from '../utils/validationUtils.js';
-import { addPersonToList } from '../services/person-date.js';
+import useBooking from './useBooking.js';
 
 export const useBookTable = () => {
+  const { bookingData, updateContactInfo, setErrorMessage } = useBooking();
   const navigate = useNavigate();
-  const location = useLocation();
-  const targetId = location?.state?.targetId;
 
-  const bookingData = findForm(targetId);
-
-  const [errorMessage, setErrorMessage] = useState(bookingData?.message);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    note: '',
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'email') {
-      updateReservation({ [name]: value });
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleProceed = (e) => {
-    e.preventDefault();
+  const handleProceed = () => {
+    if (bookingData.reservationId === null) {
+      navigate('/location-date-time');
+      return;
+    }
 
-    const personFormData = new FormData(e.currentTarget);
-    const name = personFormData.get('name');
-    const email = personFormData.get('email');
-    const phone = personFormData.get('phone');
-    const note = personFormData.get('note');
+    const { name, email, phone, note } = formData;
 
     const validationError = validateContactDetails({ name, email, phone });
     if (validationError) {
@@ -36,39 +37,32 @@ export const useBookTable = () => {
       return;
     }
 
-    addPersonToList({ name: name, email: email, phone: phone });
+    const contactInfo = { name, email, phone, note };
+    updateContactInfo(contactInfo);
 
-    const updatedData = {
-      id: targetId,
-      email: email,
-      note: note,
-      message: '',
-    };
-
-    updateReservation(updatedData);
-    if (bookingData?.hasSpecialMenu) {
-      navigate('/special-menu-selection', { state: { targetId } });
+    if (bookingData.specialMenuItems === null) {
+      const FIFTEEN_MINUTES_IN_MS = 15 * 60 * 1000;
+      sessionStorage.setItem(
+        'pendingHoldExpiry',
+        (Date.now() + FIFTEEN_MINUTES_IN_MS).toString()
+      );
+      navigate('/email-verification');
       return;
     }
 
-    const FIFTEEN_MINUTES_IN_MS = 15 * 60 * 1000;
-    sessionStorage.setItem(
-      'pendingHoldExpiry',
-      (Date.now() + FIFTEEN_MINUTES_IN_MS).toString()
-    );
-
-    navigate('/email-verification', { state: { targetId } });
+    navigate('/special-menu-selection');
   };
 
   return {
     state: {
-      targetId,
-      errorMessage,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      note: formData.note,
     },
     actions: {
       handleChange,
       handleProceed,
-      navigate,
     },
   };
 };

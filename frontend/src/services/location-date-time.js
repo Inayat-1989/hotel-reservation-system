@@ -1,4 +1,5 @@
-import { findForm } from './form-data';
+import { parseValueFromDate } from '../utils/locationDateTimeUtils';
+
 export const locationList = [
   {
     id: 'Downtown',
@@ -46,6 +47,7 @@ export const getLocations = () => locationList;
 
 export const getAvailableSeats = (locationId, date, timeSlot) => {
   const location = findLocationObject(locationId);
+  date = parseValueFromDate(date);
   if (!location) return 0;
 
   if (!date || !timeSlot) return location.totalSeats;
@@ -54,6 +56,18 @@ export const getAvailableSeats = (locationId, date, timeSlot) => {
   const bookedSeats = slotBookings[key] || 0;
 
   return Math.max(0, location.totalSeats - bookedSeats);
+};
+
+export const calculateSlotSeats = (locationId, slotList) => {
+  const location = findLocationObject(locationId);
+  if (!location) return 0;
+  slotList = slotList.map((slot) => {
+    let seats = getAvailableSeats(locationId, slot.value24, slot.display12);
+    const key = `${locationId}_${parseValueFromDate(slot.value24)}_${slot.display12}`;
+    slotBookings[key] = slotBookings[key] || seats;
+    return { ...slot, seats: slotBookings[key] };
+  });
+  return slotList;
 };
 
 export const reserveSeats = (locationId, date, timeSlot, partySize) => {
@@ -84,22 +98,20 @@ export const releaseSeats = (locationId, date, timeSlot, partySize) => {
   slotBookings[key] = Math.max(0, currentBooked - guestCount);
 };
 
-export const actualRemainingSeats = (
-  selectedLocationId,
-  selectedDate,
-  selectedTime,
-  isEditMode,
-  targetId
-) => {
-  let remainingSeats = getAvailableSeats(
-    selectedLocationId,
-    selectedDate,
-    selectedTime
-  );
-  if (isEditMode) {
-    const form = findForm(targetId);
-    if (form.locationId === selectedLocationId)
-      remainingSeats = remainingSeats + form?.guests;
-  }
-  return remainingSeats;
-};
+// export const actualRemainingSeats = (
+//   selectedLocationId,
+//   selectedDate,
+//   selectedTime
+// ) => {
+//   let remainingSeats = getAvailableSeats(
+//     selectedLocationId,
+//     selectedDate,
+//     selectedTime
+//   );
+//   if (isEditMode) {
+//     const form = findForm(targetId);
+//     if (form.locationId === selectedLocationId)
+//       remainingSeats = remainingSeats + form?.guests;
+//   }
+//   return remainingSeats;
+// };

@@ -1,14 +1,17 @@
-const GuestDateTimeSelect = ({
-  selectedDate,
-  selectedTime,
-  guests,
-  availableSlots,
-  setSelectedTime,
-  setGuests,
-  setIsCalendarOpen,
-  isEditMode,
-  handleProceed,
-}) => {
+import { parseValueFromDate } from '../../utils/locationDateTimeUtils.js';
+import useLocationGuestDateTime from '../../hooks/useLocationGuestDateTime.js';
+
+const GuestDateTimeSelect = () => {
+  const {
+    guests,
+    setGuests,
+    setIsCalendarOpen,
+    selectedDate,
+    selectedTime,
+    setSelectedTime,
+    availableSlots,
+    handleProceed,
+  } = useLocationGuestDateTime();
   return (
     <>
       <div className="flex flex-wrap items-center justify-center gap-4">
@@ -38,7 +41,7 @@ const GuestDateTimeSelect = ({
             onClick={() => setIsCalendarOpen(true)}
             className="bg-black/50 border border-white/20 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-[#c93400] flex items-center gap-3 min-w-42.5 justify-between hover:bg-black/70 transition-all"
           >
-            <span>{selectedDate || 'Select Date'}</span>
+            <span>{parseValueFromDate(selectedDate) || 'Select Date'}</span>
             <span className="text-xs opacity-70">📅</span>
           </button>
         </div>
@@ -52,20 +55,28 @@ const GuestDateTimeSelect = ({
             onChange={(e) => setSelectedTime(e.target.value)}
             className="bg-black/50 border border-white/20 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-[#c93400] disabled:opacity-50"
           >
-            {availableSlots.length > 0 ? (
-              availableSlots.map((slot) => (
+            {availableSlots ? (
+              availableSlots.length > 0 ? (
+                availableSlots.map((slot) => (
+                  <option
+                    key={slot.value24}
+                    value={slot.display12}
+                    className="bg-[#171717] text-white disabled:text-[#737373]"
+                  >
+                    {slot.display12}
+                  </option>
+                ))
+              ) : (
                 <option
-                  key={slot.value24}
-                  value={slot.value24}
-                  className="bg-[#171717] text-white disabled:text-[#737373]"
+                  value=""
+                  disabled
+                  className="bg-[#171717] text-[#737373]"
                 >
-                  {slot.display12}
+                  Closed / No slots on this date
                 </option>
-              ))
+              )
             ) : (
-              <option value="" disabled className="bg-[#171717] text-[#737373]">
-                Closed / No slots on this date
-              </option>
+              'No slots Refresh'
             )}
           </select>
         </div>
@@ -77,7 +88,7 @@ const GuestDateTimeSelect = ({
           onClick={handleProceed}
           className="w-full md:w-auto px-10 py-3.5 rounded-full bg-[#c93400] text-white text-lg font-bold shadow-lg hover:bg-white hover:text-[#c93400] transition-all duration-300 transform hover:scale-105"
         >
-          {isEditMode ? 'Save Changes' : 'Book a Table'}
+          Book a Table
         </button>
       </div>
     </>

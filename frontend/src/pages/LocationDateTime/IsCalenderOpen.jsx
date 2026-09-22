@@ -1,12 +1,9 @@
 import ThemedCalender from '../../components/ui/ThemedCalender';
 
-const IsCalenderOpen = ({
-  isCalendarOpen,
-  setIsCalendarOpen,
-  selectedDate,
-  setSelectedDate,
-  selectedLocationId,
-}) => {
+import useLocationGuestDateTime from '../../hooks/useLocationGuestDateTime.js';
+
+const IsCalenderOpen = () => {
+  const { isCalendarOpen, setIsCalendarOpen } = useLocationGuestDateTime();
   if (!isCalendarOpen) return null;
 
   return (
@@ -15,11 +12,7 @@ const IsCalenderOpen = ({
       onClick={() => setIsCalendarOpen(false)}
     >
       <div onClick={(e) => e.stopPropagation()}>
-        <ThemedCalender
-          value={selectedDate}
-          onChange={(newDate) => setSelectedDate(selectedLocationId, newDate)}
-          onClose={() => setIsCalendarOpen(false)}
-        />
+        <ThemedCalender />
       </div>
     </div>
   );

@@ -1,95 +1,125 @@
-import { findLocationObject } from '../services/location-date-time.js';
+import {
+  findLocationObject,
+  calculateSlotSeats,
+} from '../services/location-date-time.js';
 
-export const getTodayStr = () => new Date().toISOString().split('T')[0];
+export const getToday = () => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
 
 export const getTimeNow = () => {
   const now = new Date();
-  const [hour, min] = [now.getHours(), now.getMinutes()];
+  return adjustTime(now);
+};
 
-  return `${hour}:${min}`;
+export const parseValueFromDate = (date) => {
+  let [year, month, day] = date.toLocaleDateString().split('/');
+  return `${year}-${month}-${day}`;
+};
+
+export const getStringDate = (date) => {
+  date = date.split('T')[0];
+  return date;
+  // const [year, month, day] = date.split('-');
+  // return `${year}-${month}-${day}`;
+};
+
+export const parseDatefromValue = (value) => {
+  let [year, month, day] = value.split('-');
+  const date = new Date(year, month - 1, day);
+  return date;
+};
+
+export const formatDisplayTime = (dateObj) => {
+  const hours = dateObj.getHours();
+  const mins = dateObj.getMinutes();
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 === 0 ? 12 : hours % 12;
+  const pad2 = (num) => String(num).padStart(2, '0');
+
+  return `${pad2(hours12)}:${pad2(mins)} ${period}`;
 };
 
 export const calculateAvailableTimeSlots = (locationId, selectedDate) => {
-  const location = findLocationObject(locationId);
+  const location = findLocationObject(locationId); // we would need to change this, find the selected location object from DB later
   if (!location) {
     return [];
   }
 
-  const date = getTodayStr();
-  const time = getTimeNow();
+  const now = getTimeNow();
 
-  if (date === selectedDate) {
-    if (location.close <= time) return [];
+  const [openHour, openMin] = location.open.split(':').map(Number);
+  const [closeHour, closeMin] = location.close.split(':').map(Number);
+
+  const isToday =
+    selectedDate.getFullYear() === now.getFullYear() &&
+    selectedDate.getMonth() === now.getMonth() &&
+    selectedDate.getDate() === now.getDate();
+
+  const closeDateTime = new Date(selectedDate);
+  closeDateTime.setHours(closeHour, closeMin, 0, 0);
+  if (isToday) {
+    if (closeDateTime <= now) return [];
+    return calculateSlotSeats(locationId, get30MinList(now, closeDateTime));
   }
 
-  return get30MinList(time, location.close);
+  const openDateTime = new Date(selectedDate);
+  openDateTime.setHours(openHour, openMin, 0, 0);
+
+  return calculateSlotSeats(
+    locationId,
+    get30MinList(openDateTime, closeDateTime)
+  );
 };
 
-export const adjustTime = (time) => {
-  const [hour, adjustedMin] = time.split(':');
+export const adjustTime = (dateObj) => {
+  const d = new Date(dateObj);
+  const min = d.getMinutes();
 
-  if (adjustedMin >= '00' && adjustedMin < '30') {
-    return `${hour}:30`;
-  } else if (adjustedMin >= '30' && adjustedMin <= '59') {
-    return `${Number(hour) + 1}:00`;
-  } else {
-    return time;
+  if (min > 0 && min <= 30) {
+    d.setMinutes(30, 0, 0);
+  } else if (min > 30 && min <= 59) {
+    d.setHours(d.getHours() + 1, 0, 0, 0);
+  } else if (min === 0) {
+    d.setMinutes(0, 0, 0);
   }
+  return d;
 };
 
-const get30MinList = (startTime, endTime) => {
-  if (!startTime || !endTime) return [];
+const get30MinList = (startDateTime = getTimeNow(), endDateTime) => {
+  if (!startDateTime || !endDateTime) return [];
 
-  startTime = adjustTime(startTime);
-
-  const formatDisplayTime = (totalMinutes) => {
-    const hours = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const hours12 = hours % 12 === 0 ? 12 : hours % 12;
-    const pad2 = (num) => String(num).padStart(2, '0');
-
-    return `${pad2(hours12)}:${pad2(mins)} ${period}`;
-  };
-
-  const startMins = parseTimeToMinutes(startTime);
-  const endMins = parseTimeToMinutes(endTime);
+  let current = adjustTime(new Date(startDateTime));
+  const end = new Date(endDateTime);
   const slots = [];
 
-  for (let time = startMins; time < endMins; time += 30) {
-    const hours = Math.floor(time / 60);
-    const mins = time % 60;
-    const value24 = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+  while (current < end) {
     slots.push({
-      value24,
-      display12: formatDisplayTime(time),
-      minutes: time,
+      value24: new Date(current),
+      display12: formatDisplayTime(current),
+      minutes: current.getHours() * 60 + current.getMinutes(), // I guess we don't need this
     });
+
+    current = new Date(current.getTime() + 30 * 60 * 1000);
   }
 
   return slots;
 };
 
-const parseTimeToMinutes = (timeStr) => {
-  const [h, m] = timeStr.split(':').map(Number);
-  return h * 60 + m;
-};
+export const isLessThan24HoursAway = (targetDate) => {
+  if (
+    !targetDate ||
+    !(targetDate instanceof Date) ||
+    isNaN(targetDate.getTime())
+  )
+    return false;
 
-export const isLessThan24HoursAway = (selectedDate, selectedTime) => {
-  if (!selectedDate || !selectedTime) return false;
-
-  const now = new Date();
-
-  const minutes = now.getMinutes();
-  const roundedMinutes = minutes === 0 ? 0 : minutes <= 30 ? 30 : 60;
-  now.setMinutes(roundedMinutes, 0, 0);
-
-  const targetDate = new Date(`${selectedDate}T${selectedTime}:00`);
-
-  if (isNaN(targetDate.getTime())) return false;
+  const now = getTimeNow();
 
   const diffInMs = targetDate.getTime() - now.getTime();
   const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
 
-  return diffInMs > 0 && diffInMs < twentyFourHoursInMs;
+  return diffInMs >= 0 && diffInMs < twentyFourHoursInMs;
 };

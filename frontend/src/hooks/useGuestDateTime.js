@@ -1,44 +1,31 @@
 import { useState } from 'react';
 
 import {
-  adjustTime,
   calculateAvailableTimeSlots,
+  formatDisplayTime,
   getTimeNow,
-  getTodayStr,
 } from '../utils/locationDateTimeUtils.js';
+
 import { locationList } from '../services/location-date-time.js';
 
 export const useGuestDateTime = () => {
-  const [selectedDate, setSelectedDate] = useState(getTodayStr());
-  const [selectedTime, setSelectedTime] = useState(adjustTime(getTimeNow()));
   const [guests, setGuests] = useState(1);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [showClosedModal, setShowClosedModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(
+    () => new Date(getTimeNow())
+  );
+  const [selectedTime, setSelectedTime] = useState(
+    formatDisplayTime(getTimeNow())
+  );
   const [availableSlots, setAvailableSlots] = useState(() =>
-    calculateAvailableTimeSlots(locationList[0].id, getTodayStr())
+    calculateAvailableTimeSlots(locationList[0].id, getTimeNow())
   );
 
-  const updateSlotsForLocationAndDate = (locationId, date) => {
-    const newSlots = calculateAvailableTimeSlots(locationId, date);
-    setAvailableSlots(newSlots);
-
-    if (newSlots && newSlots.length > 0) {
-      setSelectedTime(newSlots[0].value24);
-    } else {
-      setSelectedTime('');
-    }
+  const handleTimeChange = (e) => {
+    setSelectedTime(e);
   };
-
-  const handleDateChange = (locationId, newDate) => {
-    updateSlotsForLocationAndDate(locationId, newDate);
-    setSelectedDate(newDate);
-  };
-
-  const handleTimeChange = (e) =>
-    setSelectedTime(e?.target ? e.target.value : e);
 
   const handleGuestsChange = (e) => {
-    const val = e?.target ? e.target.value : e;
+    const val = e;
     setGuests(Math.max(1, Number(val) || 1));
   };
 
@@ -47,16 +34,13 @@ export const useGuestDateTime = () => {
       selectedDate,
       selectedTime,
       guests,
-      isCalendarOpen,
-      showClosedModal,
       availableSlots,
     },
     dateTimeActions: {
-      setSelectedDate: handleDateChange,
+      setSelectedDate,
       setSelectedTime: handleTimeChange,
       setGuests: handleGuestsChange,
-      setIsCalendarOpen,
-      setShowClosedModal,
+      setAvailableSlots,
     },
   };
 };

@@ -1,54 +1,34 @@
-import { useState, useMemo } from 'react';
-import { getTodayStr } from '../../utils/locationDateTimeUtils.js';
+import { useContext, useState, useMemo, useEffect } from 'react';
+import { LocationGuestDateTimeContext } from '../../context/LocationGuestDateTime.jsx';
+import { getToday } from '../../utils/locationDateTimeUtils.js';
 
-const parseDateFromValue = (value) => {
-  if (value) {
-    const [y, m] = value.split('-').map(Number);
-    return new Date(y, m - 1, 1);
-  }
-  return new Date();
-};
+const ThemedCalender = () => {
+  const {
+    isCalendarOpen,
+    setSelectedDate,
+    selectedDate,
+    setIsCalendarOpen,
+    selectedLocationId,
+  } = useContext(LocationGuestDateTimeContext);
 
-const ThemedCalender = ({ value, onChange, onClose }) => {
-  const [state, setState] = useState(() => ({
-    viewDate: parseDateFromValue(value),
-    prevValue: value,
-  }));
+  const [viewDate, setViewDate] = useState(() => new Date(selectedDate));
 
-  let currentViewDate = state.viewDate;
-  if (value !== state.prevValue) {
-    currentViewDate = parseDateFromValue(value);
-    setState({
-      viewDate: currentViewDate,
-      prevValue: value,
-    });
-  }
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setViewDate(new Date(selectedDate));
+  }, [selectedDate]);
 
   const handlePrevMonth = () => {
-    setState((prev) => ({
-      ...prev,
-      viewDate: new Date(
-        prev.viewDate.getFullYear(),
-        prev.viewDate.getMonth() - 1,
-        1
-      ),
-    }));
+    setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
   const handleNextMonth = () => {
-    setState((prev) => ({
-      ...prev,
-      viewDate: new Date(
-        prev.viewDate.getFullYear(),
-        prev.viewDate.getMonth() + 1,
-        1
-      ),
-    }));
+    setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
   const calendarDays = useMemo(() => {
-    const year = currentViewDate.getFullYear();
-    const month = currentViewDate.getMonth();
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
     const totalDays = new Date(year, month + 1, 0).getDate();
     const startDay = new Date(year, month, 1).getDay();
 
@@ -60,21 +40,22 @@ const ThemedCalender = ({ value, onChange, onClose }) => {
     for (let d = 1; d <= totalDays; d++) {
       const monthStr = String(month + 1).padStart(2, '0');
       const dayStr = String(d).padStart(2, '0');
+      const date = new Date(year, month, d);
       const formattedDate = `${year}-${monthStr}-${dayStr}`;
 
-      const isDisabled = formattedDate < getTodayStr();
+      const isDisabled = date < getToday();
 
-      days.push({ day: d, dateStr: formattedDate, isDisabled });
+      days.push({ day: d, dateStr: formattedDate, date, isDisabled });
     }
     return days;
-  }, [currentViewDate]);
+  }, [viewDate]);
 
   return (
     <div className="relative w-full max-w-xs select-none rounded-3xl border border-white/20 bg-[#171717] p-6 text-white shadow-2xl">
-      {onClose && (
+      {isCalendarOpen && (
         <button
           type="button"
-          onClick={onClose}
+          onClick={() => setIsCalendarOpen(false)}
           className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-sm text-[#999999] hover:bg-white/10 hover:text-white"
         >
           ✕
@@ -82,7 +63,7 @@ const ThemedCalender = ({ value, onChange, onClose }) => {
       )}
 
       <div
-        className={`mb-5 flex items-center justify-between ${onClose ? 'pr-6' : ''}`}
+        className={`mb-5 flex items-center justify-between ${isCalendarOpen ? 'pr-6' : ''}`}
       >
         <button
           type="button"
@@ -92,7 +73,7 @@ const ThemedCalender = ({ value, onChange, onClose }) => {
           ◀
         </button>
         <span className="text-base font-semibold text-[#c93400]">
-          {currentViewDate.toLocaleDateString('en-US', {
+          {viewDate.toLocaleDateString('en-US', {
             month: 'long',
             year: 'numeric',
           })}
@@ -116,7 +97,11 @@ const ThemedCalender = ({ value, onChange, onClose }) => {
         {calendarDays.map((item, idx) => {
           if (!item) return <div key={`empty-${idx}`} />;
 
-          const isSelected = item.dateStr === value;
+          const isSelected =
+            selectedDate &&
+            item.day === selectedDate.getDate() &&
+            viewDate.getMonth() === selectedDate.getMonth() &&
+            viewDate.getFullYear() === selectedDate.getFullYear();
 
           return (
             <button
@@ -124,8 +109,8 @@ const ThemedCalender = ({ value, onChange, onClose }) => {
               type="button"
               disabled={item.isDisabled}
               onClick={() => {
-                onChange(item.dateStr);
-                if (onClose) onClose();
+                setSelectedDate(selectedLocationId, item.date);
+                if (isCalendarOpen) setIsCalendarOpen(false);
               }}
               className={`flex h-9 items-center justify-center rounded-xl text-xs font-medium transition-all duration-150 ${
                 isSelected

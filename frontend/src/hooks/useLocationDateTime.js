@@ -1,65 +1,37 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 
-import {
-  locationList,
-  actualRemainingSeats,
-  releaseSeats,
-  reserveSeats,
-} from '../services/location-date-time.js';
-import {
-  addPendingReservation,
-  findForm,
-  updateReservation,
-} from '../services/form-data.js';
-import { useGuestDateTime } from './useGuestDateTime.js';
-import {
-  getTodayStr,
-  isLessThan24HoursAway,
-} from '../utils/locationDateTimeUtils.js';
+import { locationList } from '../services/location-date-time.js';
 
 export const useLocationDateTime = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const isEditMode = Boolean(location.state?.targetId);
-  const targetId = location.state?.targetId;
   const [selectedLocationId, setSelectedLocationId] = useState(
     locationList[0].id
   );
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [showClosedModal, setShowClosedModal] = useState(false);
 
-  const { dateTimeState, dateTimeActions } = useGuestDateTime();
-
-  const {
-    selectedDate,
-    selectedTime,
-    guests,
-    isCalendarOpen,
-    showClosedModal,
-    availableSlots,
-  } = dateTimeState;
-  const {
-    setSelectedDate,
-    setSelectedTime,
-    setGuests,
-    setIsCalendarOpen,
-    setShowClosedModal,
-  } = dateTimeActions;
-
-  const actualSeats = actualRemainingSeats(
-    selectedLocationId,
-    selectedDate,
-    selectedTime,
-    isEditMode,
-    targetId
-  );
-
-  const handleLocationSelect = (locId) => {
-    setSelectedLocationId(locId);
-    setSelectedDate(locId, getTodayStr());
+  return {
+    locationState: {
+      selectedLocationId,
+      isCalendarOpen,
+      showClosedModal,
+    },
+    locationActions: {
+      setSelectedLocationId,
+      setIsCalendarOpen,
+      setShowClosedModal,
+    },
   };
 
-  const handleProceed = (e) => {
+  // const navigate = useNavigate();
+  // const location = useLocation();
+
+  // we will check this from local storage, we can pass the state as we are doing right now, works fine, no need to add complexity
+  /* const isEditMode = Boolean(location.state?.targetId); */
+
+  // same no changes
+  /* const targetId = location.state?.targetId; */
+
+  /* const handleProceed = (e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -119,28 +91,5 @@ export const useLocationDateTime = () => {
     }
 
     navigate('/book-table', { state: { targetId } });
-  };
-
-  return {
-    state: {
-      selectedLocationId,
-      isEditMode,
-      selectedDate,
-      selectedTime,
-      guests,
-      isCalendarOpen,
-      showClosedModal,
-      availableSlots,
-      actualSeats,
-    },
-    actions: {
-      setLocationId: handleLocationSelect,
-      handleProceed,
-      setSelectedDate,
-      setSelectedTime,
-      setGuests,
-      setIsCalendarOpen,
-      setShowClosedModal,
-    },
-  };
+  }; */
 };

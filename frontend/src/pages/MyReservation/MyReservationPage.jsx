@@ -7,8 +7,10 @@ import ReservationCard from './ReservationCard.jsx';
 import CancelReservation from './CancelReservation.jsx';
 
 import { useReservationManager } from '../../hooks/useReservationManager.js';
+import useBooking from '../../hooks/useBooking.js';
 
 const MyReservationsPage = () => {
+  const { bookingData } = useBooking();
   const navigate = useNavigate();
   const {
     activeTab,
@@ -21,10 +23,8 @@ const MyReservationsPage = () => {
     confirmCancelReservation,
   } = useReservationManager();
 
-  const handleOpenEdit = (reservation) => {
-    navigate('/location-date-time', {
-      state: { targetId: reservation.id },
-    });
+  const handleOpenEdit = () => {
+    navigate('/location-date-time');
   };
 
   return (

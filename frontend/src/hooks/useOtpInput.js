@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 
-const HARDCODED_OTP = '123456';
+const HARDCODED_OTP = '123456'; // Mock OTP for testing
 
 export const useOtpInput = ({ timeLeft, onVerifySuccess }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -11,18 +11,6 @@ export const useOtpInput = ({ timeLeft, onVerifySuccess }) => {
   const handleOtpChange = (e, index) => {
     const val = e.target.value;
     if (val && !/^\d+$/.test(val)) return;
-
-    if (val.length > 1) {
-      const pastedDigits = val.slice(0, 6).split('');
-      const newOtp = [...otp];
-      pastedDigits.forEach((digit, idx) => {
-        if (idx < 6) newOtp[idx] = digit;
-      });
-      setOtp(newOtp);
-      const nextIndex = Math.min(pastedDigits.length, 5);
-      inputsRef.current[nextIndex]?.focus();
-      return;
-    }
 
     const newOtp = [...otp];
     newOtp[index] = val;
@@ -55,7 +43,7 @@ export const useOtpInput = ({ timeLeft, onVerifySuccess }) => {
     setTimeout(() => setShowResendToast(false), 4000);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (timeLeft <= 0) {
@@ -73,7 +61,7 @@ export const useOtpInput = ({ timeLeft, onVerifySuccess }) => {
 
     if (enteredCode === HARDCODED_OTP) {
       setOtpError('');
-      onVerifySuccess();
+      await onVerifySuccess();
     } else {
       setOtpError('Incorrect verification code. Please try again.');
     }
