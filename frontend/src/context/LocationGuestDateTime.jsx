@@ -2,8 +2,6 @@ import { createContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import useBooking from '../hooks/useBooking';
-
-import { useLocationDateTime } from '../hooks/useLocationDateTime';
 import { useGuestDateTime } from '../hooks/useGuestDateTime';
 
 import {
@@ -26,44 +24,31 @@ export const LocationGuestDateTimeProvider = ({ children }) => {
     updateSpecialMenu,
     setReservationMeta,
   } = useBooking();
-  const { locationState, locationActions } = useLocationDateTime();
+  // const { locationState, locationActions } = useLocationDateTime();
   const { dateTimeState, dateTimeActions } = useGuestDateTime();
 
-  const { selectedLocationId, isCalendarOpen, showClosedModal, errorMessage } =
-    locationState;
-  const {
-    setSelectedLocationId,
-    setIsCalendarOpen,
-    setShowClosedModal,
-    setErrorMessage,
-  } = locationActions;
+  // const { selectedLocationId, isCalendarOpen, showClosedModal, errorMessage } =
+  //   locationState;
+  // const {
+  //   setSelectedLocationId,
+  //   setIsCalendarOpen,
+  //   setShowClosedModal,
+  //   setErrorMessage,
+  // } = locationActions;
 
   const { selectedDate, selectedTime, guests, availableSlots } = dateTimeState;
-  const { setSelectedDate, setSelectedTime, setGuests, setAvailableSlots } =
-    dateTimeActions;
+  const { setSelectedDate, setSelectedTime, setGuests } = dateTimeActions;
 
-  const handleLocationSelect = (locationId) => {
-    handleDateSelect(locationId, getTimeNow());
-    setSelectedLocationId(locationId);
-  };
-
-  const handleDateSelect = (locationId, newDate) => {
-    let slots = calculateAvailableTimeSlots(locationId, newDate);
-    setAvailableSlots(slots);
-    if (slots.length > 0) {
-      setSelectedTime(slots[0].display12);
-    } else {
-      setSelectedTime('No Slots Available');
-    }
-    setSelectedDate(() => newDate);
+  const handleDateSelect = (newDate) => {
+    setSelectedDate(newDate)
   };
 
   const handleIsCalenderOpen = (value) => {
-    setIsCalendarOpen(value);
+    // setIsCalendarOpen(value);
   };
 
   const handleShowClosedModel = (value) => {
-    setShowClosedModal(value);
+    // setShowClosedModal(value);
   };
 
   const handleProceed = () => {
@@ -77,18 +62,18 @@ export const LocationGuestDateTimeProvider = ({ children }) => {
     // checks for slots availability and the guest size selection
     // checks
 
-    if (
-      !isEdit &&
-      bookingData.locationId === selectedLocationId &&
-      bookingData.date === selectedDate &&
-      bookingData.timeSlot === selectedTime
-    ) {
-      setErrorMessage(
-        'Duplicate Reservation:Same Location, Date, Time and Guests.'
-      );
-      setShowClosedModal(true);
-      navigate('/my-reservation');
-    }
+    // if (
+    //   !isEdit &&
+    //   bookingData.locationId === selectedLocationId &&
+    //   bookingData.date === selectedDate &&
+    //   bookingData.timeSlot === selectedTime
+    // ) {
+    //   setErrorMessage(
+    //     'Duplicate Reservation:Same Location, Date, Time and Guests.'
+    //   );
+    //   setShowClosedModal(true);
+    //   navigate('/my-reservation');
+    // }
     // Before updating location id we have to calculate and release old values
     // let availableSeats = getAvailableSeats(
     //   selectedLocationId,
@@ -98,7 +83,7 @@ export const LocationGuestDateTimeProvider = ({ children }) => {
     // if (isEdit) {
     //   bookingData.guests;
     // }
-    updateLocation(selectedLocationId);
+    // updateLocation(selectedLocationId);
     const guestDateTime = {
       date: formattedDate,
       timeSlot: selectedTime,
@@ -115,12 +100,12 @@ export const LocationGuestDateTimeProvider = ({ children }) => {
   return (
     <LocationGuestDateTimeContext.Provider
       value={{
-        selectedLocationId,
-        setSelectedLocationId: handleLocationSelect,
-        isCalendarOpen,
-        setIsCalendarOpen: handleIsCalenderOpen,
-        showClosedModal,
-        setShowClosedModal: handleShowClosedModel,
+        // selectedLocationId,
+        // setSelectedLocationId: handleLocationSelect,
+        // isCalendarOpen,
+        // setIsCalendarOpen: handleIsCalenderOpen,
+        // showClosedModal,
+        // setShowClosedModal: handleShowClosedModel,
         selectedDate,
         setSelectedDate: handleDateSelect,
         selectedTime,
@@ -128,7 +113,6 @@ export const LocationGuestDateTimeProvider = ({ children }) => {
         guests,
         setGuests,
         availableSlots,
-        setAvailableSlots,
         handleProceed,
       }}
     >

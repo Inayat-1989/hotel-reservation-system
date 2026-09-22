@@ -36,7 +36,7 @@ const SelectedLocationDetail = ({ onChangeDetails }) => {
           <span className="text-base font-semibold text-white">
             {bookingData?.date
               ? bookingData.date
-              : parseValueFromDate(getTimeNow())}
+              : parseValueFromDate(getTimeNow('adjusted'))}
           </span>
         </div>
         <div>

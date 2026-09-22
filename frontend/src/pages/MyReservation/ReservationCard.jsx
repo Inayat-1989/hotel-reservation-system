@@ -1,6 +1,3 @@
-import { isBookingUpcoming } from '../../services/form-data.js';
-import { findPerson } from '../../services/person-date.js';
-
 const ReservationCard = ({ reservation, onEdit, onCancel }) => {
   const isUpcoming = isBookingUpcoming(reservation.date, reservation.time);
   const name = findPerson(reservation.email).name;

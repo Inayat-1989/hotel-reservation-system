@@ -5,7 +5,6 @@ import HeroHeading from '../../components/ui/HeroHeading.jsx';
 import NextPageButton from '../../components/navigation/NextPageButton.jsx';
 import MenuCard from '../../components/ui/MenuCard.jsx';
 
-import { findForm, updateReservation } from '../../services/form-data.js';
 import { menuItemsData } from '../../services/menu-items.js';
 
 const SpecialMenuSelectionPage = () => {

@@ -34,12 +34,12 @@ const App = () => {
             <Route path="/contact" element={<ContactPage />} />
 
             <Route element={<ContextLayout />}>
-              <Route path="/book-table" element={<BookTablePage />} />
+              {/* <Route path="/book-table" element={<BookTablePage />} /> */}
               <Route
                 path="/location-date-time"
                 element={<LocationDateTimePage />}
               />
-              <Route path="/my-reservation" element={<MyReservationPage />} />
+              {/* <Route path="/my-reservation" element={<MyReservationPage />} />
               <Route
                 path="/special-menu-selection"
                 element={<SpecialMenuSelectionPage />}
@@ -47,7 +47,7 @@ const App = () => {
               <Route
                 path="/email-verification"
                 element={<EmailVerificationPage />}
-              />
+              /> */}
             </Route>
           </Routes>
         </div>

@@ -3,9 +3,8 @@ import { LocationGuestDateTimeProvider } from '../../context/LocationGuestDateTi
 import HeroHeading from '../../components/ui/HeroHeading.jsx';
 import NextPageButton from '../../components/navigation/NextPageButton.jsx';
 
-import LocationDateTimeSelect from './LocationDateTimeSelect.jsx';
+import LocationCard from './LocationCard.jsx';
 import GuestDateTimeSelect from './GuestDateTimeSelect.jsx';
-import IsCalenderOpen from './IsCalenderOpen.jsx';
 import InsufficientSeats from './InsufficientSeats.jsx';
 
 const LocationDateTimePage = () => {
@@ -19,7 +18,7 @@ const LocationDateTimePage = () => {
               'Select a location and reserve your table for any available date and time slot.'
             }
           />
-          <LocationDateTimeSelect />
+          <LocationCard />
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
             <h3 className="text-lg font-semibold text-[#c93400] mb-4">
@@ -31,8 +30,6 @@ const LocationDateTimePage = () => {
         </div>
 
         <NextPageButton to="/menu" name="Menu" />
-
-        <IsCalenderOpen />
 
         <InsufficientSeats />
       </LocationGuestDateTimeProvider>

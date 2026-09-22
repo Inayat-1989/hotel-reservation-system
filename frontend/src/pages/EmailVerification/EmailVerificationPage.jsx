@@ -10,7 +10,6 @@ import { useOtpInput } from '../../hooks/useOtpInput.js';
 import useBooking from '../../hooks/useBooking.js'; // Added missing booking hook
 
 import { formatTimer } from '../../utils/timerUtils.js';
-import { updateReservation } from '../../services/form-data.js';
 
 const EmailVerificationPage = () => {
   const navigate = useNavigate();

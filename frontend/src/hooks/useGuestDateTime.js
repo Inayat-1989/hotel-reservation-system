@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import {
   calculateAvailableTimeSlots,
@@ -6,7 +6,7 @@ import {
   getTimeNow,
 } from '../utils/locationDateTimeUtils.js';
 
-import { locationList } from '../services/location-date-time.js';
+import { location } from '../services/location-date-time.js';
 
 export const useGuestDateTime = () => {
   const [guests, setGuests] = useState(1);
@@ -16,22 +16,15 @@ export const useGuestDateTime = () => {
   const [selectedTime, setSelectedTime] = useState(
     formatDisplayTime(getTimeNow())
   );
-  const [availableSlots, setAvailableSlots] = useState(() =>
-    calculateAvailableTimeSlots(locationList[0].id, getTodayStr())
-  );
+  // const [availableSlots, setAvailableSlots] = useState(() =>
+  //   calculateAvailableTimeSlots(getTimeNow())
+  // );
 
-  const updateSlotsForLocationAndDate = (locationId, date) => {
-    const newSlots = calculateAvailableTimeSlots(locationId, date);
-    setAvailableSlots(newSlots);
-    if (newSlots && newSlots.length > 0) {
-      setSelectedTime(newSlots[0].value24);
-    } else {
-      setSelectedTime('');
-    }
-  };
+  const availableSlots = useMemo(() => {
+    calculateAvailableTimeSlots(selectedDate);
+  }, [selectedDate]);
 
-  const handleDateChange = (locationId, newDate) => {
-    updateSlotsForLocationAndDate(locationId, newDate);
+  const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
   };
 
@@ -54,7 +47,6 @@ export const useGuestDateTime = () => {
       setSelectedDate,
       setSelectedTime: handleTimeChange,
       setGuests: handleGuestsChange,
-      setAvailableSlots,
     },
   };
 };

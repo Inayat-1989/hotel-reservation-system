@@ -1,24 +1,17 @@
 import { useState } from 'react';
 
-import { locationList } from '../services/location-date-time.js';
-
 export const useLocationDateTime = () => {
-  const [selectedLocationId, setSelectedLocationId] = useState(
-    locationList[0].id
-  );
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [showClosedModal, setShowClosedModal] = useState(false);
+  
+  const [showErrorModel, setShowErrorModel] = useState(false); // no slots, duplicate, already in reservation
 
   return {
     locationState: {
-      selectedLocationId,
       isCalendarOpen,
-      showClosedModal,
+      showErrorModel,
     },
     locationActions: {
-      setSelectedLocationId,
       setIsCalendarOpen,
-      setShowClosedModal,
+      setShowErrorModel,
     },
   };
 

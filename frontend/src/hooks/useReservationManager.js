@@ -1,11 +1,5 @@
 import { useState, useMemo } from 'react';
 
-import {
-  formList,
-  removeReservation,
-  isBookingUpcoming,
-} from '../services/form-data.js';
-
 export const useReservationManager = () => {
   const [reservations, setReservations] = useState([...formList]);
   const [activeTab, setActiveTab] = useState('upcoming');
