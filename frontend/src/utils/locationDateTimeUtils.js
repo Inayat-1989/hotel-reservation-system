@@ -48,6 +48,7 @@ export const calculateAvailableTimeSlots = (locationId, selectedDate) => {
     return [];
   }
 
+<<<<<<< HEAD
   const now = getTimeNow();
 
   const [openHour, openMin] = location.open.split(':').map(Number);
@@ -63,6 +64,14 @@ export const calculateAvailableTimeSlots = (locationId, selectedDate) => {
   if (isToday) {
     if (closeDateTime <= now) return [];
     return calculateSlotSeats(locationId, get30MinList(now, closeDateTime));
+=======
+  const date = getTodayStr();
+  let time = location.open;
+
+  if (date === selectedDate) {
+    if (location.close <= time) return [];
+    time = getTimeNow();
+>>>>>>> 3445e5576719aca6106eb4aad5413717a53e7849
   }
 
   const openDateTime = new Date(selectedDate);

@@ -17,12 +17,27 @@ export const useGuestDateTime = () => {
     formatDisplayTime(getTimeNow())
   );
   const [availableSlots, setAvailableSlots] = useState(() =>
-    calculateAvailableTimeSlots(locationList[0].id, getTimeNow())
+    calculateAvailableTimeSlots(locationList[0].id, getTodayStr())
   );
 
-  const handleTimeChange = (e) => {
-    setSelectedTime(e);
+  const updateSlotsForLocationAndDate = (locationId, date) => {
+    const newSlots = calculateAvailableTimeSlots(locationId, date);
+    setAvailableSlots(newSlots);
+
+    if (newSlots && newSlots.length > 0) {
+      setSelectedTime(newSlots[0].value24);
+    } else {
+      setSelectedTime('');
+    }
   };
+
+  const handleDateChange = (locationId, newDate) => {
+    updateSlotsForLocationAndDate(locationId, newDate);
+    setSelectedDate(newDate);
+  };
+
+  const handleTimeChange = (e) =>
+    setSelectedTime(e?.target ? e.target.value : e);
 
   const handleGuestsChange = (e) => {
     const val = e;
