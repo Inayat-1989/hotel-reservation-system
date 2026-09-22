@@ -23,7 +23,6 @@ export const useGuestDateTime = () => {
   const updateSlotsForLocationAndDate = (locationId, date) => {
     const newSlots = calculateAvailableTimeSlots(locationId, date);
     setAvailableSlots(newSlots);
-
     if (newSlots && newSlots.length > 0) {
       setSelectedTime(newSlots[0].value24);
     } else {

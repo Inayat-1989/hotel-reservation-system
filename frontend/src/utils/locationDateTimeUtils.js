@@ -67,6 +67,7 @@ export const calculateAvailableTimeSlots = (locationId, selectedDate) => {
 =======
   const date = getTodayStr();
   let time = location.open;
+  let time = location.open;
 
   if (date === selectedDate) {
     if (location.close <= time) return [];
@@ -130,5 +131,6 @@ export const isLessThan24HoursAway = (targetDate) => {
   const diffInMs = targetDate.getTime() - now.getTime();
   const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
 
+  return diffInMs >= 0 && diffInMs < twentyFourHoursInMs;
   return diffInMs >= 0 && diffInMs < twentyFourHoursInMs;
 };
